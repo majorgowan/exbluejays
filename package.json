@@ -1,0 +1,14 @@
+{
+  "name": "exbluejays",
+  "version": "1.0.0",
+  "description": "tracking former Toronto Blue Jays",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mark Fruman",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
