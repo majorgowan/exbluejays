@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>The Ex-Blue Jay Report</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<h1>The Ex-Blue Jay Report</h1>
+<div>
+    <table>
+        <tr><th>Name</th><th>Position</th><th>Current Team</th><th>Years with Jays</th></tr>
+        <%- players.map(player => `<tr><td>${player.fullName}</td>
+                                       <td>${player.position}</td>
+                                       <td>${player.latest_team}</td>
+                                       <td>${player.years_with_jays.join(",")}</td></tr>`).join('') %>
+    </table>
+</div>
+<footer>
+    All data <a href="http://gdx.mlb.com/components/copyright.txt">copyright</a> of MLB Advanced Media, L.P.
+</footer>
+</body>
+</html>
