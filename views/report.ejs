@@ -4,12 +4,17 @@
     <meta charset="utf-8">
     <title>The Ex-Blue Jay Report</title>
     <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="/js/sorttable.js"></script>
 </head>
 <body>
 <h1>The Ex-Blue Jay Report</h1>
 <div>
-    <table>
-        <tr><th>Name</th><th>Position</th><th>Current Team</th><th>Years with Jays</th></tr>
+    <p class="motto">
+        You can take the player out of the Blue Jays but you can't
+        take the Ex-Blue Jay out of the player!
+    </p>
+    <table class="sortable">
+        <thead><th>Name</th><th>Position</th><th>Current Team</th><th>Years with Jays</th></thead>
         <%- players.map(player => `<tr><td>${player.fullName}</td>
                                        <td>${player.position}</td>
                                        <td>${player.latest_team}</td>
