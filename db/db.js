@@ -2,7 +2,8 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const MONGO_USER = process.env.MONGO_USER;
 const MONGO_PASS = process.env.MONGO_PASS;
 const MONGO_SRV = process.env.MONGO_SRV;
-const mongo_uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASS}@${MONGO_SRV}/?appName=Mongogowan`;
+const MONGO_APP = process.env.MONGO_APP;
+const mongo_uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASS}@${MONGO_SRV}/?appName=${MONGO_APP}`;
 
 // Ensure crypto is available globally
 if (!global.crypto) {

@@ -5,6 +5,9 @@ const connectToDatabase = require("./db/db");
 const app = express();
 app.set('view engine', 'ejs');
 
+// Parse JSON bodies
+app.use(express.json());
+
 const playersData = require('./data/players_with_activity.json');
 const currentYear = new Date().getFullYear().toString();
 
@@ -59,9 +62,23 @@ app.get('/exJays', (req, res) => {
 app.get('/db', async (req, res) => {
     const dbInstance = await connectToDatabase("exbluejays");
     console.log(dbInstance);
-    const players = await dbInstance.collection("players").find({}).toArray();
-    console.log(players);
-    res.json(players);
+    const playersArray = await dbInstance.collection("players").find({}).toArray();
+    console.log(playersArray);
+    res.json(playersArray);
+});
+
+app.post('/populate', async (req, res) => {
+    const dbInstance = await connectToDatabase("exbluejays");
+    const how = req.body.how;
+    const players = filterPlayers(how);
+    const documentsToInsert = Object.entries(players).map(([id, player]) => {
+        return {"_id": id, ...player};
+    });
+    const playersCollection = dbInstance.collection("players");
+    const result = await playersCollection.insertMany(documentsToInsert,
+                                                                       {"ordered": false});
+    res.json({"inserted": result.insertedCount,
+                   "totalDocs": await playersCollection.countDocuments()});
 });
 
 app.listen(3000, () => {
