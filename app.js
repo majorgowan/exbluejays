@@ -1,10 +1,11 @@
+require("dotenv").config();
 const express = require('express');
+const connectToDatabase = require("./db/db");
 
 const app = express();
 app.set('view engine', 'ejs');
 
 const playersData = require('./data/players_with_activity.json');
-
 const currentYear = new Date().getFullYear().toString();
 
 // function to filter players
@@ -53,6 +54,14 @@ app.get('/exJays', (req, res) => {
     const players = Object.values(filterPlayers("ex"));
     console.log(`Returning ${players.length} ex Blue Jays.`);
     res.render('report', { players: players });
+});
+
+app.get('/db', async (req, res) => {
+    const dbInstance = await connectToDatabase("exbluejays");
+    console.log(dbInstance);
+    const players = await dbInstance.collection("players").find({}).toArray();
+    console.log(players);
+    res.json(players);
 });
 
 app.listen(3000, () => {

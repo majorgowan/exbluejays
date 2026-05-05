@@ -1,0 +1,45 @@
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const MONGO_USER = process.env.MONGO_USER;
+const MONGO_PASS = process.env.MONGO_PASS;
+const MONGO_SRV = process.env.MONGO_SRV;
+const mongo_uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASS}@${MONGO_SRV}/?appName=Mongogowan`;
+
+// Ensure crypto is available globally
+if (!global.crypto) {
+    global.crypto = require('crypto');
+}
+let dbInstance;
+
+// function to connect to database
+async function connectToDatabase(dbname) {
+    if (dbInstance) {
+        return dbInstance;
+    }
+    const client = new MongoClient(mongo_uri, {
+        serverApi: {
+            version: ServerApiVersion.v1,
+            strict: true,
+            deprecationErrors: true,
+        },
+        family: 4
+    });
+    await client.connect();
+    dbInstance = client.db(dbname);
+    console.log(`Connected to Database: ${dbname}`);
+
+    // Register shutdown handler only once
+    process.on('SIGINT', async () => {
+        await client.close();
+        console.log('MongoDB connection closed');
+        process.exit(0);
+    });
+    process.on('SIGTERM', async () => {
+        await client.close();
+        console.log('MongoDB connection closed');
+        process.exit(0);
+    });
+
+    return dbInstance;
+}
+
+module.exports = connectToDatabase;

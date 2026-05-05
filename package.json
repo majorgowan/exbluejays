@@ -9,6 +9,7 @@
   "author": "Mark Fruman",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "mongodb": "^7.2.0"
