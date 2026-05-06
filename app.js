@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require('express');
-const connectToDatabase = require("./db/db");
+const { connectToDatabase } = require("./db/db");
 
 const app = express();
 app.set('view engine', 'ejs');

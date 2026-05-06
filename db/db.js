@@ -9,14 +9,15 @@ const mongo_uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASS}@${MONGO_SRV}/?appNa
 if (!global.crypto) {
     global.crypto = require('crypto');
 }
-let dbInstance;
+let dbInstance = null;
+let client = null;
 
 // function to connect to database
 async function connectToDatabase(dbname) {
     if (dbInstance) {
         return dbInstance;
     }
-    const client = new MongoClient(mongo_uri, {
+    client = new MongoClient(mongo_uri, {
         serverApi: {
             version: ServerApiVersion.v1,
             strict: true,
@@ -43,4 +44,10 @@ async function connectToDatabase(dbname) {
     return dbInstance;
 }
 
-module.exports = connectToDatabase;
+async function closeConnection() {
+    if (client) {
+        await client.close();
+    }
+}
+
+module.exports = { connectToDatabase, closeConnection };
