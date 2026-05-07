@@ -1,5 +1,5 @@
 require("dotenv").config();
-const {connectToDatabase, closeConnection} = require("../db/db");
+const {connectToDatabase, closeConnection} = require("../utils/db");
 const argv = require('yargs')
     .option("bbtest", {
         type: "boolean",
@@ -25,6 +25,7 @@ const argv = require('yargs')
 
 const MLB_API = process.env.MLB_API;
 
+const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const days = argv.days;
 const calendar = argv.calendar;
 const bbtest = argv.bbtest;
@@ -33,8 +34,8 @@ const enddate = argv.enddate;
 function lastSunday() {
     // get the date of last Sunday
     const lastSunday = new Date();
-    const day = lastSunday.getDay(); // Sunday = 0, Saturday = 6
-    lastSunday.setDate(lastSunday.getDate() - day);
+    const day = lastSunday.getUTCDay(); // Sunday = 0, Saturday = 6
+    lastSunday.setUTCDate(lastSunday.getUTCDate() - day);
     return lastSunday;
 }
 
@@ -49,13 +50,13 @@ if (enddate) {
     endDateObj = new Date();
 }
 const startDateObj = new Date(endDateObj);
-startDateObj.setDate(endDateObj.getDate() - days + 1);
+startDateObj.setUTCDate(endDateObj.getUTCDate() - days + 1);
 
 const startDateString = startDateObj.toISOString().split("T")[0];
 const endDateString = endDateObj.toISOString().split("T")[0];
 const currentYear = startDateObj.getFullYear().toString();
 
-console.log(`Fetching stats for ${startDateString} (${startDateObj.toString().split(" ")[0]}) to ${endDateString}  (${endDateObj.toString().split(" ")[0]})`);
+console.log(`Fetching stats for ${startDateString} (${dayNames[startDateObj.getUTCDay()]}) to ${endDateString} (${dayNames[endDateObj.getUTCDay()]})`);
 
 async function update_stats(startDate, endDate) {
     const dbInstance = await connectToDatabase("exbluejays");
@@ -113,6 +114,20 @@ async function update_stats(startDate, endDate) {
             console.error(error);
         }
     }
+
+    // update reports collection
+    const reportsCollection = dbInstance.collection("reports");
+    const reportsResult = await reportsCollection.insertOne(
+        {
+            "endDate": endDateString,
+            "fetched": new Date(),
+            "complete": true
+        }
+    );
+    if (reportsResult.acknowledged) {
+        console.log(`inserted report: ${reportsResult.insertedId}`);
+    }
+
     await closeConnection();
 }
 
