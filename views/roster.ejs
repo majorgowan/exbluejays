@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>The Ex-Blue Jay Report</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <script type="text/javascript" src="/js/sorttable.js"></script>
-</head>
+
+<%- include('partials/header.ejs') %>
+
 <body>
-<h1>The Ex-Blue Jay Report</h1>
 <div>
-    <p class="motto">
-        You can take the player out of the Blue Jays, but you can't
-        take the Ex-Blue Jay out of the player!
-    </p>
     <table class="sortable">
         <thead>
         <tr>
@@ -30,8 +22,8 @@
         </tbody>
     </table>
 </div>
-<footer>
-    All data <a href="http://gdx.mlb.com/components/copyright.txt">copyright</a> of MLB Advanced Media, L.P.
-</footer>
 </body>
+
+<%- include('partials/footer.ejs') %>
+
 </html>

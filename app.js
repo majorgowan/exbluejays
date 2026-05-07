@@ -8,7 +8,9 @@ app.set('view engine', 'ejs');
 // Parse JSON bodies
 app.use(express.json());
 
+// (temporary) local file with player data
 const playersData = require('./data/players_with_activity.json');
+
 const currentYear = new Date().getFullYear().toString();
 
 // function to filter players
@@ -52,10 +54,10 @@ app.get('/data', (req, res) => {
     }
 });
 
-app.get('/exJays', (req, res) => {
+app.get('/roster', (req, res) => {
     const players = Object.values(filterPlayers("ex"));
     console.log(`Returning ${players.length} ex Blue Jays.`);
-    res.render('exjays', {players: players});
+    res.render('roster', {players: players});
 });
 
 app.get('/report', async (req, res) => {
