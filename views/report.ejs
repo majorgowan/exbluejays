@@ -10,7 +10,7 @@
     <h1 class="exjayheading">The Ex-Blue Jay Report</h1>
     <h3 class="exjayheading">for Week Ending <%= endDate %></h3>
     <p class="motto">
-        You can take the player out of the Blue Jays but you can't
+        You can take the player out of the Blue Jays, but you can't
         take the Ex-Blue Jay out of the player!
     </p>
 </header>
@@ -21,21 +21,24 @@
     </h3>
     <table class="sortable">
         <thead>
-        <th>Name</th>
-        <th>Position</th>
-        <th>Current Team</th>
-        <th>Ex since</th>
-        <th>GP</th>
-        <th>AB</th>
-        <th>H</th>
-        <th>BB</th>
-        <th>HR</th>
-        <th>RBI</th>
-        <th>AVG</th>
-        <th>OBP</th>
-        <th>SLG</th>
-        <th>OPS</th>
+        <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Current Team</th>
+            <th>Ex since</th>
+            <th>GP</th>
+            <th>AB</th>
+            <th>H</th>
+            <th>BB</th>
+            <th>HR</th>
+            <th>RBI</th>
+            <th>AVG</th>
+            <th>OBP</th>
+            <th>SLG</th>
+            <th>OPS</th>
+        </tr>
         </thead>
+        <tbody>
         <%- hitters.map(player => `<tr><td>${player.name}</td>
                                        <td>${player.position}</td>
                                        <td>${player.team}</td>
@@ -51,6 +54,7 @@
                                        <td class="tstat">${player.slg}</td>
                                        <td class="tstat">${player.ops}</td>
                                        </tr>`).join('') %>
+        </tbody>
     </table>
 </div>
 <div>
@@ -59,38 +63,42 @@
     </h3>
     <table class="sortable">
         <thead>
-        <th>Name</th>
-        <th>Current Team</th>
-        <th>Ex since</th>
-        <th>GP</th>
-        <th>GS</th>
-        <th>IP</th>
-        <th>W</th>
-        <th>L</th>
-        <th>ERA</th>
-        <th>K</th>
-        <th>BB</th>
-        <th>HR</th>
-        <th>WHIP</th>
-        <th>S</th>
-        <th>HLD</th>
+        <tr>
+            <th>Name</th>
+            <th>Current Team</th>
+            <th>Ex since</th>
+            <th>GP</th>
+            <th>GS</th>
+            <th>IP</th>
+            <th>W</th>
+            <th>L</th>
+            <th>ERA</th>
+            <th>K</th>
+            <th>BB</th>
+            <th>HR</th>
+            <th>WHIP</th>
+            <th>S</th>
+            <th>HLD</th>
+        </tr>
         </thead>
+        <tbody>
         <%- pitchers.map(player => `<tr><td>${player.name}</td>
-                                        <td>${player.team}</td>
-                                        <td>${player.ex_since}</td>
-                                        <td class="tstat">${player.gamesPitched}</td>
-                                        <td class="tstat">${player.gamesStarted}</td>
-                                        <td class="tstat">${player.inningsPitched}</td>
-                                        <td class="tstat">${player.wins}</td>
-                                        <td class="tstat">${player.losses}</td>
-                                        <td class="tstat">${player.era}</td>
-                                        <td class="tstat">${player.strikeOuts}</td>
-                                        <td class="tstat">${player.baseOnBalls}</td>
-                                        <td class="tstat">${player.homeRuns}</td>
-                                        <td class="tstat">${player.whip}</td>
-                                        <td class="tstat">${player.saves}</td>
-                                        <td class="tstat">${player.holds}</td>
-                                        </tr>`).join('') %>
+                                            <td>${player.team}</td>
+                                            <td>${player.ex_since}</td>
+                                            <td class="tstat">${player.gamesPitched}</td>
+                                            <td class="tstat">${player.gamesStarted}</td>
+                                            <td class="tstat">${player.inningsPitched}</td>
+                                            <td class="tstat">${player.wins}</td>
+                                            <td class="tstat">${player.losses}</td>
+                                            <td class="tstat">${player.era}</td>
+                                            <td class="tstat">${player.strikeOuts}</td>
+                                            <td class="tstat">${player.baseOnBalls}</td>
+                                            <td class="tstat">${player.homeRuns}</td>
+                                            <td class="tstat">${player.whip}</td>
+                                            <td class="tstat">${player.saves}</td>
+                                            <td class="tstat">${player.holds}</td>
+                                            </tr>`).join('') %>
+        </tbody>
     </table>
 </div>
 </body>
