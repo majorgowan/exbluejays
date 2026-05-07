@@ -13,6 +13,23 @@ header {
     color: darkred;
 }
 
+.dateselectdiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 150px;
+}
+
+.exjayselect {
+    color: darkred;
+    background-color: lightsteelblue;
+    font-size: medium;
+    padding: 6px 20px;
+}
+.exjayselect:invalid {
+    color: lightgray;
+}
+
 .motto {
     font-style: italic;
     color: navy;
@@ -40,8 +57,16 @@ table td {
     text-align: center;
     color: darkred;
 }
+.logo {
+    color: navy;
+}
 
 footer {
     color: navy;
     margin-top: 30px;
+}
+
+.subscribe {
+    color: darkred;
+    font-weight: bold;
 }

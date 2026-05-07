@@ -4,6 +4,17 @@
 <%- include('partials/header.ejs') %>
 
 <body>
+<div class="dateselectdiv">
+    <h3 class="exjayheading">Report for Week Ending <%= endDate %></h3>
+    <!-- <label for="dateSelect">Choose a Week:</label> -->
+    <select class="exjayselect" id="dateSelect" name="dateSelect"
+            onchange="changeEndDate()">
+        <option value="" disabled selected>Select Week</option>
+        <% endDates.forEach(date => { %>
+            <option value="<%= date %>"><%= date %></option>
+        <% }); %>
+    </select>
+</div>
 <div>
     <h3 class="exjayheading">
         The Ex Bats
@@ -12,8 +23,8 @@
         <thead>
         <tr>
             <th>Name</th>
+            <th></th>
             <th>Position</th>
-            <th>Current Team</th>
             <th>Ex since</th>
             <th>GP</th>
             <th>AB</th>
@@ -28,9 +39,9 @@
         </tr>
         </thead>
         <tbody>
-        <%- hitters.map(player => `<tr><td>${player.name}</td>
+        <%- hitters.map(player => `<tr><td>${player.name}</i></td>
+                                       <td><i class="logo bbclub-${teamAbbMap[player.team]}" title="${player.team}"></i></td>
                                        <td>${player.position}</td>
-                                       <td>${player.team}</td>
                                        <td>${player.ex_since}</td>
                                        <td class="tstat">${player.gamesPlayed}</td>
                                        <td class="tstat">${player.atBats}</td>
@@ -54,7 +65,7 @@
         <thead>
         <tr>
             <th>Name</th>
-            <th>Current Team</th>
+            <th></th>
             <th>Ex since</th>
             <th>GP</th>
             <th>GS</th>
@@ -71,8 +82,8 @@
         </tr>
         </thead>
         <tbody>
-        <%- pitchers.map(player => `<tr><td>${player.name}</td>
-                                            <td>${player.team}</td>
+        <%- pitchers.map(player => `<tr><td>${player.name}</i></td>
+                                            <td><i class="logo bbclub-${teamAbbMap[player.team]}" title="${player.team}"></i></td>
                                             <td>${player.ex_since}</td>
                                             <td class="tstat">${player.gamesPitched}</td>
                                             <td class="tstat">${player.gamesStarted}</td>

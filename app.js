@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require('express');
-const {connectToDatabase} = require("./db/db");
+const {connectToDatabase} = require("./utils/db");
+const {teamAbbMap} = require("./utils/mlb");
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -63,37 +64,21 @@ app.get('/roster', (req, res) => {
 app.get('/report', async (req, res) => {
     let endDate = req.query.endDate;
     const dbInstance = await connectToDatabase("exbluejays");
-    // if no date specified, get the latest stats from Mongo
+
+    // get list of weekly reports
+    const datesArray = await dbInstance.collection("reports").find(
+        {},
+        {"sort": {"endDate": -1}},
+        {"projection": {"endDate": 1}}
+    ).toArray();
+    const endDates = await datesArray.map((date) => {
+        return date.endDate;
+    })
     if (endDate === undefined) {
-        const lastDate = await dbInstance.collection("players").aggregate([
-            {
-                "$match": {
-                    "stats": {
-                        "$exists": true
-                    }
-                }
-            },
-            {
-                "$project": {
-                    "keys": {
-                        "$objectToArray": "$stats"
-                    }
-                }
-            },
-            {
-                "$unwind": "$keys"
-            },
-            {
-                "$group": {
-                    "_id": null,
-                    "lastDate": {
-                        "$max": "$keys.k"
-                    }
-                }
-            }
-        ]).toArray();
-        endDate = lastDate[0].lastDate;
+        // if no date specified, use latest
+        endDate = endDates[0];
     }
+
     // retrieve stats for specified date
     const playersArray = await dbInstance.collection("players").aggregate([
         {
@@ -117,6 +102,7 @@ app.get('/report', async (req, res) => {
             }
         }
     ]).toArray();
+
     // build hitters table
     const hitters = await playersArray
         .filter(player => {
@@ -182,13 +168,16 @@ app.get('/report', async (req, res) => {
     });
 
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
-        {weekday: "long", month: "long", day: "numeric"}
+        {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
     );
+    console.log(endDate, endDateString);
 
     console.log(`Returning ${hitters.length} ex Blue Jay hitters and ${pitchers.length} ex Blue Jay pitchers.`);
     res.render('report',
         {
             endDate: endDateString,
+            endDates: endDates,
+            teamAbbMap: teamAbbMap,
             hitters: hitters,
             pitchers: pitchers
         });
