@@ -5,17 +5,17 @@ body {
     color: steelblue;
 }
 
-h1 {
-    color: darkred;
+header {
+    padding-bottom: 10px;
 }
 
-p {
-    font-size: 18pt;
+.exjayheading {
+    color: darkred;
 }
 
 .motto {
     font-style: italic;
-    color: #c44;
+    color: navy;
     font-size: 12pt;
 }
 
@@ -26,10 +26,22 @@ table.sortable thead {
     font-weight: bold;
     cursor: default;
     text-align: left;
+    margin-bottom: 15px;
 }
 table th {
-    padding: 8px 4px;
+    padding: 6px;
+    font-size: small
 }
 table td {
     padding: 4px;
+    font-size: small
+}
+.tstat {
+    text-align: center;
+    color: darkred;
+}
+
+footer {
+    color: navy;
+    margin-top: 30px;
 }

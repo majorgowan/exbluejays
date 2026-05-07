@@ -6,23 +6,100 @@
     <link rel="stylesheet" href="/css/style.css">
     <script type="text/javascript" src="/js/sorttable.js"></script>
 </head>
-<body>
-<h1>The Ex-Blue Jay Report</h1>
-<div>
+<header>
+    <h1 class="exjayheading">The Ex-Blue Jay Report</h1>
+    <h3 class="exjayheading">for Week Ending <%= endDate %></h3>
     <p class="motto">
         You can take the player out of the Blue Jays but you can't
         take the Ex-Blue Jay out of the player!
     </p>
+</header>
+<body>
+<div>
+    <h3 class="exjayheading">
+        The Ex Bats
+    </h3>
     <table class="sortable">
-        <thead><th>Name</th><th>Position</th><th>Current Team</th><th>Years with Jays</th></thead>
-        <%- players.map(player => `<tr><td>${player.fullName}</td>
+        <thead>
+        <th>Name</th>
+        <th>Position</th>
+        <th>Current Team</th>
+        <th>Ex since</th>
+        <th>GP</th>
+        <th>AB</th>
+        <th>H</th>
+        <th>BB</th>
+        <th>HR</th>
+        <th>RBI</th>
+        <th>AVG</th>
+        <th>OBP</th>
+        <th>SLG</th>
+        <th>OPS</th>
+        </thead>
+        <%- hitters.map(player => `<tr><td>${player.name}</td>
                                        <td>${player.position}</td>
-                                       <td>${player.latest_team}</td>
-                                       <td>${player.years_with_jays.join(",")}</td></tr>`).join('') %>
+                                       <td>${player.team}</td>
+                                       <td>${player.ex_since}</td>
+                                       <td class="tstat">${player.gamesPlayed}</td>
+                                       <td class="tstat">${player.atBats}</td>
+                                       <td class="tstat">${player.hits}</td>
+                                       <td class="tstat">${player.baseOnBalls}</td>
+                                       <td class="tstat">${player.homeRuns}</td>
+                                       <td class="tstat">${player.rbi}</td>
+                                       <td class="tstat">${player.avg}</td>
+                                       <td class="tstat">${player.obp}</td>
+                                       <td class="tstat">${player.slg}</td>
+                                       <td class="tstat">${player.ops}</td>
+                                       </tr>`).join('') %>
     </table>
 </div>
-<footer>
-    All data <a href="http://gdx.mlb.com/components/copyright.txt">copyright</a> of MLB Advanced Media, L.P.
-</footer>
+<div>
+    <h3 class="exjayheading">
+        The Ex Arms
+    </h3>
+    <table class="sortable">
+        <thead>
+        <th>Name</th>
+        <th>Current Team</th>
+        <th>Ex since</th>
+        <th>GP</th>
+        <th>GS</th>
+        <th>IP</th>
+        <th>W</th>
+        <th>L</th>
+        <th>ERA</th>
+        <th>K</th>
+        <th>BB</th>
+        <th>HR</th>
+        <th>WHIP</th>
+        <th>S</th>
+        <th>HLD</th>
+        </thead>
+        <%- pitchers.map(player => `<tr><td>${player.name}</td>
+                                        <td>${player.team}</td>
+                                        <td>${player.ex_since}</td>
+                                        <td class="tstat">${player.gamesPitched}</td>
+                                        <td class="tstat">${player.gamesStarted}</td>
+                                        <td class="tstat">${player.inningsPitched}</td>
+                                        <td class="tstat">${player.wins}</td>
+                                        <td class="tstat">${player.losses}</td>
+                                        <td class="tstat">${player.era}</td>
+                                        <td class="tstat">${player.strikeOuts}</td>
+                                        <td class="tstat">${player.baseOnBalls}</td>
+                                        <td class="tstat">${player.homeRuns}</td>
+                                        <td class="tstat">${player.whip}</td>
+                                        <td class="tstat">${player.saves}</td>
+                                        <td class="tstat">${player.holds}</td>
+                                        </tr>`).join('') %>
+    </table>
+</div>
 </body>
+<footer>
+    <p>
+        Copyright (2026) by Mark Fruman
+    </p>
+    <p>
+        All data <a href="http://gdx.mlb.com/components/copyright.txt">copyright</a> of MLB Advanced Media, L.P.
+    </p>
+</footer>
 </html>
