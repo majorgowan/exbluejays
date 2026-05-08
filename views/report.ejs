@@ -14,6 +14,13 @@
             <option value="<%= date %>"><%= date %></option>
         <% }); %>
     </select>
+    <span>
+        <input class="exjaycheckbox" id="ytdCheckbox" type="checkbox"
+               name="ytdCheckbox"
+               <%= ytd ? "checked" : "" %>
+               onchange="changeYTD()">
+        <label class="exjaycheckbox" for="ytdCheckbox">YTD</label>
+    </span>
 </div>
 <div>
     <h3 class="exjayheading">

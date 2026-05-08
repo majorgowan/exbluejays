@@ -15,9 +15,15 @@ header {
 
 .dateselectdiv {
     display: flex;
+    width: 85%;
     flex-direction: row;
     align-items: center;
-    gap: 150px;
+    justify-content: space-between;
+}
+
+.exjaycheckbox {
+    font-size: large;
+    color: darkred;
 }
 
 .exjayselect {
@@ -28,6 +34,10 @@ header {
 }
 .exjayselect:invalid {
     color: lightgray;
+}
+
+.ytd_tables {
+    display: none;
 }
 
 .motto {

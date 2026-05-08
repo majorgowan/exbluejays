@@ -6,6 +6,12 @@ const argv = require('yargs')
         default: false,
         describe: "Just update Bo Bichette and Chris Bassitt",
     })
+    .option("ytd", {
+        alias: "y",
+        type: "boolean",
+        default: false,
+        describe: "fetch year-to-date stats up to endDate (overrides days)"
+    })
     .option("days", {
         alias: "d",
         type: "number",
@@ -15,46 +21,47 @@ const argv = require('yargs')
     .option("enddate", {
         type: "string",
         describe: "specify end date"
-    })
-    .option("calendar", {
-        alias: "c",
-        type: "boolean",
-        default: false,
-        describe: "last calendar week Monday-to-Sunday",
     }).argv;
 
 const MLB_API = process.env.MLB_API;
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const days = argv.days;
-const calendar = argv.calendar;
 const bbtest = argv.bbtest;
 const enddate = argv.enddate;
-
-function lastSunday() {
-    // get the date of last Sunday
-    const lastSunday = new Date();
-    const day = lastSunday.getUTCDay(); // Sunday = 0, Saturday = 6
-    lastSunday.setUTCDate(lastSunday.getUTCDate() - day);
-    return lastSunday;
-}
+const ytd = argv.ytd;
 
 let endDateObj;
 if (enddate) {
     endDateObj = new Date(enddate);
-} else if (calendar) {
-    // use games until LAST SUNDAY
-    endDateObj = lastSunday();
 } else {
-    // use today
+    // use last Sunday
     endDateObj = new Date();
+    const day = endDateObj.getUTCDay();
+    if (day === 0) {
+        endDateObj.setUTCDate(endDateObj.getUTCDate() - 7);
+    } else {
+        endDateObj.setUTCDate(endDateObj.getUTCDate() - day);
+    }
 }
+
+// set start date
+const currentYear = endDateObj.getFullYear().toString();
 const startDateObj = new Date(endDateObj);
-startDateObj.setUTCDate(endDateObj.getUTCDate() - days + 1);
+
+let statsType;
+
+if (ytd) {
+    startDateObj.setUTCDate(1);
+    startDateObj.setUTCMonth(0);
+    statsType = "ytd";
+} else {
+    startDateObj.setUTCDate(endDateObj.getUTCDate() - days + 1);
+    statsType = "stats";
+}
 
 const startDateString = startDateObj.toISOString().split("T")[0];
 const endDateString = endDateObj.toISOString().split("T")[0];
-const currentYear = startDateObj.getFullYear().toString();
 
 console.log(`Fetching stats for ${startDateString} (${dayNames[startDateObj.getUTCDay()]}) to ${endDateString} (${dayNames[endDateObj.getUTCDay()]})`);
 
@@ -94,7 +101,7 @@ async function update_stats(startDate, endDate) {
             const response = await fetch(player_url);
             if (!response.ok) throw new Error(`Could not fetch ${player.fullName}`);
             const data = await response.json();
-            if (data?.stats?.[0]?.splits?.[0]?.hasOwnProperty("stat")) {
+            if (data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
                 // update the Mongo record
                 const result = await playersCollection.updateOne(
                     {
@@ -102,11 +109,12 @@ async function update_stats(startDate, endDate) {
                     },
                     {
                         "$set": {
-                            [`stats.${endDateString}`]: data.stats[0].splits[0]["stat"]
+                            [`${statsType}.${endDateString}`]: data.stats[0].splits[0]["stat"]
                         }
                     }
                 );
                 console.log(`. . . modified ${result.modifiedCount}`);
+                console.log(result);
             } else {
                 console.log(". . . no stats");
             }
@@ -117,15 +125,22 @@ async function update_stats(startDate, endDate) {
 
     // update reports collection
     const reportsCollection = dbInstance.collection("reports");
-    const reportsResult = await reportsCollection.insertOne(
+    const reportsResult = await reportsCollection.updateOne(
         {
-            "endDate": endDateString,
-            "fetched": new Date(),
-            "complete": true
+            "endDate": endDateString
+        },
+        {
+            "$set":
+            {
+                [`fetched_${statsType}`] : new Date()
+            }
+        },
+        {
+            "upsert": true
         }
     );
     if (reportsResult.acknowledged) {
-        console.log(`inserted report: ${reportsResult.insertedId}`);
+        console.log(reportsResult);
     }
 
     await closeConnection();

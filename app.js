@@ -63,6 +63,16 @@ app.get('/roster', (req, res) => {
 
 app.get('/report', async (req, res) => {
     let endDate = req.query.endDate;
+    let statsType;
+    let ytd;
+    if (req.query.ytd === "true") {
+        statsType = "ytd";
+        ytd = true;
+    } else {
+        statsType = "stats";
+        ytd = false;
+    }
+
     const dbInstance = await connectToDatabase("exbluejays");
 
     // get list of weekly reports
@@ -83,7 +93,7 @@ app.get('/report', async (req, res) => {
     const playersArray = await dbInstance.collection("players").aggregate([
         {
             "$match": {
-                [`stats.${endDate}`]: {"$exists": true}
+                [`${statsType}.${endDate}`]: {"$exists": true}
             }
         },
         {
@@ -92,13 +102,13 @@ app.get('/report', async (req, res) => {
                 "fullName": 1,
                 "position": 1,
                 "latest_team": 1,
-                [`stats.${endDate}`]: 1,
+                [`${statsType}.${endDate}`]: 1,
                 "years_with_jays": 1
             }
         },
         {
             "$sort": {
-                [`stats.${endDate}.ops`]: -1
+                [`${statsType}.${endDate}.ops`]: -1
             }
         }
     ]).toArray();
@@ -114,21 +124,21 @@ app.get('/report', async (req, res) => {
                 "position": player.position,
                 "team": player.latest_team,
                 "ex_since": player.years_with_jays.at(-1),
-                "gamesPlayed": player.stats[endDate].gamesPlayed,
-                "atBats": player.stats[endDate].atBats,
-                "avg": player.stats[endDate].avg,
-                "obp": player.stats[endDate].obp,
-                "slg": player.stats[endDate].slg,
-                "ops": player.stats[endDate].ops,
-                "hits": player.stats[endDate].hits,
-                "runs": player.stats[endDate].runs,
-                "homeRuns": player.stats[endDate].homeRuns,
-                "rbi": player.stats[endDate].rbi,
-                "strikeOuts": player.stats[endDate].strikeOuts,
-                "baseOnBalls": player.stats[endDate].baseOnBalls,
-                "stolenBases": player.stats[endDate].stolenBases,
-                "groundIntoDoublePlay": player.stats[endDate].groundIntoDoublePlay,
-                "plateAppearances": player.stats[endDate].plateAppearances
+                "gamesPlayed": player[statsType][endDate].gamesPlayed,
+                "atBats": player[statsType][endDate].atBats,
+                "avg": player[statsType][endDate].avg,
+                "obp": player[statsType][endDate].obp,
+                "slg": player[statsType][endDate].slg,
+                "ops": player[statsType][endDate].ops,
+                "hits": player[statsType][endDate].hits,
+                "runs": player[statsType][endDate].runs,
+                "homeRuns": player[statsType][endDate].homeRuns,
+                "rbi": player[statsType][endDate].rbi,
+                "strikeOuts": player[statsType][endDate].strikeOuts,
+                "baseOnBalls": player[statsType][endDate].baseOnBalls,
+                "stolenBases": player[statsType][endDate].stolenBases,
+                "groundIntoDoublePlay": player[statsType][endDate].groundIntoDoublePlay,
+                "plateAppearances": player[statsType][endDate].plateAppearances
             };
         });
 
@@ -142,20 +152,20 @@ app.get('/report', async (req, res) => {
                 "name": player.fullName,
                 "team": player.latest_team,
                 "ex_since": player.years_with_jays.at(-1),
-                "gamesPitched": player.stats[endDate].gamesPitched,
-                "gamesStarted": player.stats[endDate].gamesStarted,
-                "inningsPitched": player.stats[endDate].inningsPitched,
-                "wins": player.stats[endDate].wins,
-                "losses": player.stats[endDate].losses,
-                "era": player.stats[endDate].era,
-                "whip": player.stats[endDate].whip,
-                "saves": player.stats[endDate].saves,
-                "holds": player.stats[endDate].holds,
-                "hits": player.stats[endDate].hits,
-                "homeRuns": player.stats[endDate].homeRuns,
-                "earnedRuns": player.stats[endDate].earnedRuns,
-                "strikeOuts": player.stats[endDate].strikeOuts,
-                "baseOnBalls": player.stats[endDate].baseOnBalls
+                "gamesPitched": player[statsType][endDate].gamesPitched,
+                "gamesStarted": player[statsType][endDate].gamesStarted,
+                "inningsPitched": player[statsType][endDate].inningsPitched,
+                "wins": player[statsType][endDate].wins,
+                "losses": player[statsType][endDate].losses,
+                "era": player[statsType][endDate].era,
+                "whip": player[statsType][endDate].whip,
+                "saves": player[statsType][endDate].saves,
+                "holds": player[statsType][endDate].holds,
+                "hits": player[statsType][endDate].hits,
+                "homeRuns": player[statsType][endDate].homeRuns,
+                "earnedRuns": player[statsType][endDate].earnedRuns,
+                "strikeOuts": player[statsType][endDate].strikeOuts,
+                "baseOnBalls": player[statsType][endDate].baseOnBalls
             };
         });
     // sort pitchers by ERA then WHIP
@@ -179,7 +189,8 @@ app.get('/report', async (req, res) => {
             endDates: endDates,
             teamAbbMap: teamAbbMap,
             hitters: hitters,
-            pitchers: pitchers
+            pitchers: pitchers,
+            ytd: ytd
         });
 });
 
