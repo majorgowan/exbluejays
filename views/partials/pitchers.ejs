@@ -1,0 +1,44 @@
+<div>
+    <h3 class="exjayheading">
+        The Ex Arms
+    </h3>
+    <table class="sortable">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th></th>
+            <th>Ex since</th>
+            <th>GP</th>
+            <th>GS</th>
+            <th>IP</th>
+            <th>W</th>
+            <th>L</th>
+            <th>ERA</th>
+            <th>K</th>
+            <th>BB</th>
+            <th>HR</th>
+            <th>WHIP</th>
+            <th>S</th>
+            <th>HLD</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%- pitchers.map(player => `<tr><td>${player.name}</i></td>
+                                            <td><i class="logo bbclub-${teamAbbMap[player.team]}" title="${player.team}"></i></td>
+                                            <td>${player.ex_since}</td>
+                                            <td class="tstat">${player.gamesPitched}</td>
+                                            <td class="tstat">${player.gamesStarted}</td>
+                                            <td class="tstat">${player.inningsPitched}</td>
+                                            <td class="tstat">${player.wins}</td>
+                                            <td class="tstat">${player.losses}</td>
+                                            <td class="tstat">${player.era}</td>
+                                            <td class="tstat">${player.strikeOuts}</td>
+                                            <td class="tstat">${player.baseOnBalls}</td>
+                                            <td class="tstat">${player.homeRuns}</td>
+                                            <td class="tstat">${player.whip}</td>
+                                            <td class="tstat">${player.saves}</td>
+                                            <td class="tstat">${player.holds}</td>
+                                            </tr>`).join('') %>
+        </tbody>
+    </table>
+</div>

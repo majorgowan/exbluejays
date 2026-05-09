@@ -12,7 +12,7 @@ app.use(express.json());
 // (temporary) local file with player data
 // const playersData = require('./data/players_with_activity.json');
 
-const currentYear = new Date().getFullYear().toString();
+// const currentYear = new Date().getFullYear().toString();
 
 // function to filter players
 // const filterPlayers = (how) => {
