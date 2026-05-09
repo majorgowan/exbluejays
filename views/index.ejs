@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/header.ejs') %>
+
+<body>
+<div>
+    <h4 class="exjayheading">Check out a weekly Ex-Blue Jays report!</h4>
+    <ul class="exjaylist">
+        <%- endDates.map(date => `<li><i class="bbclub-tor"></i>&nbsp;Report for <a href="/report?endDate=${date}">${date}</a></li>`).join("") %>
+    </ul>
+</div>
+</body>
+
+<%- include('partials/footer.ejs') %>
+
+</html>

@@ -14,6 +14,16 @@ header {
     color: darkred;
 }
 
+.exjaylist {
+    color: steelblue;
+    font-size: large;
+    line-height: 2;
+}
+
+.exjaylist li::marker {
+    content: ""; /* or "›", "→", "•", etc. */
+}
+
 .dateselectdiv {
     display: flex;
     width: 85%;

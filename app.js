@@ -37,8 +37,25 @@ const currentYear = new Date().getFullYear().toString();
 
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
-    res.render("index");
+app.get("/", async (req, res) => {
+    const dbInstance = await connectToDatabase("exbluejays");
+
+    // get list of weekly reports
+    const datesArray = await dbInstance.collection("reports").find(
+        {},
+        {
+            "sort": {"endDate": -1},
+            "projection": {"endDate": 1}
+        }
+    ).toArray();
+    const endDates = datesArray.map((date) => {
+        return date.endDate;
+    });
+
+    res.render('index',
+        {
+            "endDates": endDates
+        });
 });
 
 // app.get('/data', (req, res) => {
@@ -61,7 +78,7 @@ app.get("/", (req, res) => {
 //     res.render('roster', {players: players});
 // });
 
-app.get('/report', async (req, res) => {
+app.get("/report", async (req, res) => {
     let endDate = req.query.endDate;
     let statsType;
     let ytd;
@@ -78,12 +95,15 @@ app.get('/report', async (req, res) => {
     // get list of weekly reports
     const datesArray = await dbInstance.collection("reports").find(
         {},
-        {"sort": {"endDate": -1}},
-        {"projection": {"endDate": 1}}
+        {
+            "sort": {"endDate": -1},
+            "projection": {"endDate": 1}
+        }
     ).toArray();
-    const endDates = await datesArray.map((date) => {
+    const endDates = datesArray.map((date) => {
         return date.endDate;
     })
+
     if (endDate === undefined) {
         // if no date specified, use latest
         endDate = endDates[0];
@@ -114,7 +134,7 @@ app.get('/report', async (req, res) => {
     ]).toArray();
 
     // build hitters table
-    const hitters = await playersArray
+    const hitters = playersArray
         .filter(player => {
             return (player.position !== "Pitcher");
         }).map(player => {
@@ -143,7 +163,7 @@ app.get('/report', async (req, res) => {
         });
 
     // build pitchers table
-    const pitchers = await playersArray
+    const pitchers = playersArray
         .filter(player => {
             return (player.position === "Pitcher");
         }).map(player => {
@@ -180,9 +200,11 @@ app.get('/report', async (req, res) => {
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
         {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
     );
+
     console.log(endDate, endDateString);
 
     console.log(`Returning ${hitters.length} ex Blue Jay hitters and ${pitchers.length} ex Blue Jay pitchers.`);
+
     res.render('report',
         {
             endDate: endDateString,
