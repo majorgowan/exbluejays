@@ -1,6 +1,12 @@
+const fs = require("fs");
 require("dotenv").config();
 const {connectToDatabase, closeConnection} = require("../utils/db");
 const argv = require('yargs')
+    .option("local", {
+        type: "boolean",
+        default: false,
+        describe: "do not write to mongo (write local file)"
+    })
     .option("bbtest", {
         type: "boolean",
         default: false,
@@ -26,6 +32,7 @@ const argv = require('yargs')
 const MLB_API = process.env.MLB_API;
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const local = argv.local;
 const days = argv.days;
 const bbtest = argv.bbtest;
 const enddate = argv.enddate;
@@ -65,6 +72,20 @@ const endDateString = endDateObj.toISOString().split("T")[0];
 
 console.log(`Fetching stats for ${startDateString} (${dayNames[startDateObj.getUTCDay()]}) to ${endDateString} (${dayNames[endDateObj.getUTCDay()]})`);
 
+if (local) {
+    try {
+        fs.mkdirSync(`./data/${endDateString}`);
+    } catch (err) {
+        if (err.code === "EEXIST") {
+            console.log("Directory exists, exiting.");
+            process.exit(0);
+        } else {
+            console.error("Error creating folder", err);
+            process.exit(1);
+        }
+    }
+}
+
 async function update_stats(startDate, endDate) {
     const dbInstance = await connectToDatabase("exbluejays");
 
@@ -102,19 +123,35 @@ async function update_stats(startDate, endDate) {
             if (!response.ok) throw new Error(`Could not fetch ${player.fullName}`);
             const data = await response.json();
             if (data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
-                // update the Mongo record
-                const result = await playersCollection.updateOne(
-                    {
-                        "_id": player._id
-                    },
-                    {
-                        "$set": {
-                            [`${statsType}.${endDateString}`]: data.stats[0].splits[0]["stat"]
-                        }
+                if (local) {
+                    // write to local file instead of to Mongo
+                    const lastName = player.fullName.split(" ").at(-1);
+                    const jsonData = {
+                        "_id": player._id,
+                        "fullName": player.fullName,
+                        "active": player.active,
+                        "years_with_jays": player.years_with_jays,
+                        "splits": data.stats[0].splits
                     }
-                );
-                console.log(`. . . modified ${result.modifiedCount}`);
-                console.log(result);
+                    fs.writeFile(`data/${endDateString}/${player._id}_${lastName}.json`, JSON.stringify(jsonData, null, 2), (err) => {
+                        if (err) throw err;
+                        console.log(`${player.fullName} written to file ${player._id}.json`);
+                    });
+                } else {
+                    // update the Mongo record
+                    const result = await playersCollection.updateOne(
+                        {
+                            "_id": player._id
+                        },
+                        {
+                            "$set": {
+                                [`${statsType}.${endDateString}`]: data.stats[0].splits.at(-1)["stat"]
+                            }
+                        }
+                    );
+                    console.log(`. . . modified ${result.modifiedCount}`);
+                    console.log(result);
+                }
             } else {
                 console.log(". . . no stats");
             }
@@ -123,26 +160,29 @@ async function update_stats(startDate, endDate) {
         }
     }
 
-    // update reports collection
-    const reportsCollection = dbInstance.collection("reports");
-    const reportsResult = await reportsCollection.updateOne(
-        {
-            "endDate": endDateString
-        },
-        {
-            "$set":
+    if (!local) {
+        // update reports collection
+        const reportsCollection = dbInstance.collection("reports");
+        const reportsResult = await reportsCollection.updateOne(
             {
-                [`fetched_${statsType}`] : new Date()
+                "endDate": endDateString
+            },
+            {
+                "$set":
+                {
+                    [`fetched_${statsType}`] : new Date()
+                }
+            },
+            {
+                "upsert": true
             }
-        },
-        {
-            "upsert": true
+        );
+        if (reportsResult.acknowledged) {
+            console.log(reportsResult);
         }
-    );
-    if (reportsResult.acknowledged) {
-        console.log(reportsResult);
     }
 
+    // close MongoDB connection
     await closeConnection();
 }
 
