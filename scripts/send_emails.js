@@ -25,12 +25,19 @@ async function send_emails() {
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
         {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
     );
-    const statsType = "ytd";
 
     // get stats from Mongo
     const dbInstance = await connectToDatabase("exbluejays");
 
-    const { hitters, pitchers } = await buildTables(dbInstance, statsType, endDate);
+    const { hitters: hitters_week, pitchers: pitchers_week } = await buildTables(dbInstance, "stats", endDate);
+    const { hitters: hitters_ytd, pitchers: pitchers_ytd } = await buildTables(dbInstance, "ytd", endDate);
+
+    // only list the best 5 hitters and pitchers
+    // TODO: create function to better select the best (including minimum games requirement)
+    hitters_week.length = 5;
+    pitchers_week.length = 5;
+    hitters_ytd.length = 5;
+    pitchers_ytd.length = 5;
 
     const destination_email = "majorgowan@yahoo.com";
     const unsubscribe_url = `https://exbluejays.ca/unsubscribe?email=${destination_email}`;
@@ -39,11 +46,13 @@ async function send_emails() {
         {
             "email_address": destination_email,
             "unsubscribe_url": unsubscribe_url,
-            "hitters": hitters,
-            "pitchers": pitchers,
-            "endDate": endDateString,
-            "teamAbbMap": teamAbbMap,
-            "ytd": (statsType === "ytd")
+            "hitters_week": hitters_week,
+            "pitchers_week": pitchers_week,
+            "hitters_ytd": hitters_ytd,
+            "pitchers_ytd": pitchers_ytd,
+            "endDateString": endDateString,
+            "endDate": endDate,
+            "teamAbbMap": teamAbbMap
         }
     )
     console.log(html);

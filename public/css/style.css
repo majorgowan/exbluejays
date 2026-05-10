@@ -10,6 +10,11 @@ header {
     padding-bottom: 10px;
 }
 
+p {
+    color: navy;
+    margin-bottom: 20px;
+}
+
 .exjayheading {
     color: darkred;
 }

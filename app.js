@@ -120,8 +120,9 @@ app.get("/report", async (req, res) => {
 
     res.render('report',
         {
-            endDate: endDateString,
+            endDate: endDate,
             endDates: endDates,
+            endDateString: endDateString,
             teamAbbMap: teamAbbMap,
             hitters: hitters,
             pitchers: pitchers,

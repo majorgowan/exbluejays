@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('partials/header.ejs') %>
+<%- include("partials/header.ejs") %>
 
 <body>
 <div class="dateselectdiv">
-    <h3 class="exjayheading">Report for Week Ending <%= endDate %></h3>
+    <h3 class="exjayheading">Report for Week Ending <%= endDateString %></h3>
     <!-- <label for="dateSelect">Choose a Week:</label> -->
     <select class="exjayselect" id="dateSelect" name="dateSelect"
             onchange="changeEndDate()">
@@ -23,13 +23,20 @@
     </span>
 </div>
 
-<%- include('partials/hitters.ejs') %>
-<%- include('partials/pitchers.ejs') %>
+<h3 class="exjayheading">
+    The Ex Bats
+</h3>
+<%- include("partials/hitters.ejs") %>
 
-<%- include('partials/subscribe.ejs') %>
+<h3 class="exjayheading">
+    The Ex Arms
+</h3>
+<%- include("partials/pitchers.ejs") %>
+
+<%- include("partials/subscribe.ejs") %>
 
 </body>
 
-<%- include('partials/footer.ejs') %>
+<%- include("partials/footer.ejs") %>
 
 </html>

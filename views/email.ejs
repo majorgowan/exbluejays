@@ -4,9 +4,33 @@
 <%- include("partials/header.ejs") %>
 
 <body>
+<h2 class="exjayheading">Your report for Week Ending <%= endDateString %></h2>
 
-<%- include('partials/hitters.ejs') %>
-<%- include('partials/pitchers.ejs') %>
+<p>
+    Check out the <a href="https://exbluejays.ca/?endDate=<%= endDate %>">full report</a>.
+</p>
+
+<h4 class="exjayheading">
+    Your top Ex Bats of the week
+</h4>
+<%- include("partials/hitters.ejs", { hitters: hitters_week }) %>
+
+<h4 class="exjayheading">
+    ... and of the season so far
+</h4>
+<%- include("partials/hitters.ejs", { hitters: hitters_ytd }) %>
+
+<BR><BR>
+
+<h4 class="exjayheading">
+    Your top Ex Arms of the week
+</h4>
+<%- include("partials/pitchers.ejs", { pitchers: pitchers_week }) %>
+
+<h4 class="exjayheading">
+    ... and of the season so far
+</h4>
+<%- include("partials/pitchers.ejs", { pitchers: pitchers_ytd }) %>
 
 <p>
     This email was sent to <%= email_address %>.
