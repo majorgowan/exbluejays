@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("partials/header.ejs") %>
+
+<body>
+
+<%- include('partials/hitters.ejs') %>
+<%- include('partials/pitchers.ejs') %>
+
+<p>
+    This email was sent to <%= email_address %>.
+    <a href="<%= unsubscribe_url %>">Unsubscribe</a> from the Ex-Blue Jay Report.
+</p>
+
+</body>
+
+<%- include("partials/footer.ejs") %>
+
+</html>

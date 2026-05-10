@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",
+    "email-templates": "^13.0.1",
     "express": "^5.2.1",
     "mongodb": "^7.2.0",
     "yargs": "^16.2.0"

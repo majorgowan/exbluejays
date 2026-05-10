@@ -10,6 +10,9 @@
         <%- endDates.map(date => `<li><i class="bbclub-tor"></i>&nbsp;Report for <a href="/report?endDate=${date}">${date}</a></li>`).join("") %>
     </ul>
 </div>
+
+<%- include('partials/subscribe.ejs') %>
+
 </body>
 
 <%- include('partials/footer.ejs') %>
