@@ -74,7 +74,7 @@ console.log(`Fetching stats for ${startDateString} (${dayNames[startDateObj.getU
 
 if (local) {
     try {
-        fs.mkdirSync(`./data/${endDateString}`);
+        fs.mkdirSync(`./output/${endDateString}`);
     } catch (err) {
         if (err.code === "EEXIST") {
             console.log("Directory exists, exiting.");

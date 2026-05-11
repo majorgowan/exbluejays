@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('partials/header.ejs') %>
+
+<body>
+<div class="exjayform">
+    <% if (method === "get") { %>
+        <h4 class="exjayheading">Subscribe to the Ex-Blue Jay Report</h4><BR>
+        <form method="POST" action="/subscribe">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label for="email_address">Please enter your email address:</label>
+            <input type="email" id="email_address" name="email_address"
+                   autocomplete="email" required>
+            <button type="submit">Submit</button>
+        </form>
+    <% } else { %>
+        <p><%= message %></p>
+    <% } %>
+</div>
+</body>
+
+</html>

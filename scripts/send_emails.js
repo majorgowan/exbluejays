@@ -1,9 +1,36 @@
 require("dotenv").config();
+const fs = require("fs");
 const path = require("path");
+const nodemailer = require('nodemailer');
 const {connectToDatabase, closeConnection} = require("../utils/db");
 const Email = require('email-templates');
 const {buildTables} = require("../utils/tables");
 const {teamAbbMap} = require("../utils/mlb");
+const argv = require('yargs')
+    .option("render", {
+        alias: "r",
+        type: "boolean",
+        default: "false",
+        describe: "render the email but do not sent"
+    })
+    .option("destination", {
+        alias: "d",
+        type: "string",
+        describe: "destination email address"
+    }).argv;
+
+const transporter = nodemailer.createTransport({
+    host: process.env.MAILGUN_SMTP_SERVER,
+    port: process.env.MAILGUN_SMTP_PORT,
+    auth: {
+        user: process.env.MAILGUN_SMTP_LOGIN,
+        pass: process.env.MAILGUN_SMTP_PASSWORD
+    }
+});
+
+const renderOnly = argv.render;
+const destinationEmail = argv.destination;
+const senderEmail = process.env.EMAIL_SENDER_ADDRESS;
 
 async function send_emails() {
 
@@ -14,11 +41,14 @@ async function send_emails() {
                 "extension": "ejs"
             }
         },
+        "juice": true,
         "juiceResources": {
+            "applyStyleTags": true,
             "webResources": {
                 "relativeTo": path.resolve("./public")
             }
-        }
+        },
+        "transport": transporter
     });
 
     const endDate = "2026-05-03";
@@ -39,41 +69,45 @@ async function send_emails() {
     hitters_ytd.length = 5;
     pitchers_ytd.length = 5;
 
-    const destination_email = "majorgowan@yahoo.com";
-    const unsubscribe_url = `https://exbluejays.ca/unsubscribe?email=${destination_email}`;
+    const unsubscribe_url = `https://exbluejays.ca/unsubscribe?email=${destinationEmail}`;
 
-    const html = await email.render("email",
-        {
-            "email_address": destination_email,
-            "unsubscribe_url": unsubscribe_url,
-            "hitters_week": hitters_week,
-            "pitchers_week": pitchers_week,
-            "hitters_ytd": hitters_ytd,
-            "pitchers_ytd": pitchers_ytd,
-            "endDateString": endDateString,
-            "endDate": endDate,
-            "teamAbbMap": teamAbbMap
-        }
-    )
-    console.log(html);
+    const locals = {
+        "email_address": destinationEmail,
+        "unsubscribe_url": unsubscribe_url,
+        "hitters_week": hitters_week,
+        "pitchers_week": pitchers_week,
+        "hitters_ytd": hitters_ytd,
+        "pitchers_ytd": pitchers_ytd,
+        "endDateString": endDateString,
+        "endDate": endDate,
+        "teamAbbMap": teamAbbMap
+    }
 
-    // // Render and send an email
-    // await email.send({
-    //     template: "email",
-    //     message: {
-    //         "to": destination_email,
-    //         "from": "mark.fruman@yahoo.com",
-    //         "subject": `Ex-Blue Jays report for ${endDate}`,
-    //         "headers": {
-    //             "List-Unsubscribe": unsubscribe_url,
-    //             "List-Unsubscribe-Post": 'List-Unsubscribe=One-Click'
-    //         }
-    //     },
-    //     locals: {
-    //         "email_address": destination_email,
-    //         "unsubscribe_url": unsubscribe_url
-    //     }
-    // });
+    if (renderOnly) {
+        const html = await email.render("email", locals);
+
+        fs.writeFile(`./output/email_${endDate}.html`, html, (err) => {
+            if (err) console.error(err);
+        });
+
+    } else {
+
+        // Render and send an email
+        await email.send({
+            template: "email",
+            message: {
+                "to": destinationEmail,
+                "from": senderEmail,
+                "subject": `Ex-Blue Jays report for ${endDateString}`,
+                "headers": {
+                    "List-Unsubscribe": unsubscribe_url,
+                    "List-Unsubscribe-Post": 'List-Unsubscribe=One-Click'
+                }
+            },
+            locals: locals
+        });
+
+    }
 
     await closeConnection();
 }
