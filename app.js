@@ -2,11 +2,9 @@ require("dotenv").config();
 const express = require('express');
 const csrf = require("tiny-csrf");
 const cookieParser = require('cookie-parser');
-const {connectToDatabase} = require("./utils/db");
-const {buildTables} = require("./utils/tables");
-const {teamAbbMap} = require("./utils/mlb");
 const routes = require("./routes/routes");
 const subscriptionRoutes = require("./routes/subscriptions");
+const { handleCsrfError, handleMongoError } = require("./routes/errors");
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -22,14 +20,13 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-// Global Error Handler
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
-});
-
+// Routes
 app.use("/", routes);
 app.use("/", subscriptionRoutes);
+
+// Error handlers
+app.use(handleCsrfError);
+app.use(handleMongoError);
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server running on port 3000");

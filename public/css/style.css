@@ -18,6 +18,10 @@ p {
 .exjayheading {
     color: darkred;
 }
+.exjayheading a:link, a:visited {
+    color: inherit;
+    text-decoration: none;
+}
 
 .exjaylist {
     color: steelblue;
