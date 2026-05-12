@@ -92,6 +92,12 @@ footer {
     margin-top: 30px;
 }
 
+.exjayline {
+    width: 60%;
+    height: 3px; /* Adjust for thickness */
+    background-color: steelblue; /* Adjust for color */
+}
+
 .subscribe {
     color: darkred;
     font-weight: bold;

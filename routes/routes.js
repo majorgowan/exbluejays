@@ -143,6 +143,10 @@ router.post("/unsubscribe", (req, res) => {
     });
 });
 
+router.get("/privacy", (req, res) => {
+    res.render("privacy");
+});
+
 // app.post('/populate', async (req, res) => {
 //     const dbInstance = await connectToDatabase("exbluejays");
 //     const how = req.body.how;
