@@ -23,7 +23,9 @@ async function connectToDatabase(dbname) {
             strict: true,
             deprecationErrors: true,
         },
-        family: 4
+        family: 4,
+        connectTimeoutMS: 60000,
+        serverSelectionTimeoutMS: 60000
     });
     await client.connect();
     dbInstance = client.db(dbname);

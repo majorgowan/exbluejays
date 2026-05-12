@@ -71,7 +71,7 @@ router.get("/report", async (req, res) => {
     ).toArray();
     const endDates = datesArray.map((date) => {
         return date.endDate;
-    })
+    });
 
     if (endDate === undefined) {
         // if no date specified, use latest
@@ -102,49 +102,6 @@ router.get("/db", async (req, res) => {
     const dbInstance = await connectToDatabase("exbluejays");
     const playersArray = await dbInstance.collection("players").find({}).toArray();
     res.json(playersArray);
-});
-
-// subscribe and unsubscribe
-router.get("/subscribe", (req, res) => {
-    const csrfToken = req.csrfToken();
-    res.render("subscribe",
-        {
-            "method": "get",
-            "csrfToken": csrfToken
-        });
-});
-
-router.post("/subscribe", (req, res) => {
-    // process form, add address to mongo etc.
-    console.log(req.body);
-    res.render("subscribe", {
-        "method": "post",
-        "message": "me@my_shadow is now subscribed!!"
-    });
-});
-
-router.get("/unsubscribe", (req, res) => {
-    const emailAddress = req.query.emailAddress;
-    const csrfToken = req.csrfToken();
-    res.render("unsubscribe",
-        {
-            "method": "get",
-            "emailAddress": emailAddress,
-            "csrfToken": csrfToken
-        });
-});
-
-router.post("/unsubscribe", (req, res) => {
-    // process form, add address to mongo etc.
-    console.log(req.body);
-    res.render("unsubscribe", {
-        "method": "post",
-        "message": "me@my_shadow is now an ex-Ex Blue Jays subscriber!!"
-    });
-});
-
-router.get("/privacy", (req, res) => {
-    res.render("privacy");
 });
 
 // app.post('/populate', async (req, res) => {

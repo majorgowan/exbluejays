@@ -55,6 +55,11 @@ p {
 .exjayform {
     margin-top: 20px;
     margin-bottom: 80px;
+    padding: 30px;
+    border: 2px solid goldenrod;
+    border-radius: 20px;
+    background-color: cornsilk;
+    font-size: large;
 }
 
 .motto {

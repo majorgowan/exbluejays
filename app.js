@@ -6,6 +6,7 @@ const {connectToDatabase} = require("./utils/db");
 const {buildTables} = require("./utils/tables");
 const {teamAbbMap} = require("./utils/mlb");
 const routes = require("./routes/routes");
+const subscriptionRoutes = require("./routes/subscriptions");
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -28,6 +29,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use("/", routes);
+app.use("/", subscriptionRoutes);
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server running on port 3000");
