@@ -1,7 +1,7 @@
-const fs = require("fs");
 require("dotenv").config();
+const fs = require("fs");
 const {connectToDatabase, closeConnection} = require("../utils/db");
-const argv = require('yargs')
+const argv = require("yargs")
     .option("local", {
         type: "boolean",
         default: false,
@@ -86,7 +86,7 @@ if (local) {
     }
 }
 
-async function update_stats(startDate, endDate) {
+async function updateStats(startDate, endDate) {
     const dbInstance = await connectToDatabase("exbluejays");
 
     const playersCollection = dbInstance.collection("players");
@@ -186,4 +186,4 @@ async function update_stats(startDate, endDate) {
     await closeConnection();
 }
 
-update_stats(startDateString, endDateString);
+updateStats(startDateString, endDateString);

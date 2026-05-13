@@ -32,7 +32,7 @@ const renderOnly = argv.render;
 const destinationEmail = argv.destination;
 const senderEmail = process.env.EMAIL_SENDER_ADDRESS;
 
-async function send_emails() {
+async function sendEmails() {
 
     const email = new Email({
         "views": {
@@ -112,5 +112,5 @@ async function send_emails() {
     await closeConnection();
 }
 
-send_emails();
+sendEmails();
 
