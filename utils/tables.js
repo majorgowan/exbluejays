@@ -3,6 +3,9 @@ async function buildTables(dbInstance, statsType, endDate) {
     const playersArray = await dbInstance.collection("players").aggregate([
         {
             "$match": {
+                "current_team": {
+                    "$not": {"$regex": "Toronto"}
+                },
                 [`${statsType}.${endDate}`]: {"$exists": true}
             }
         },
@@ -32,7 +35,7 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "_id": player._id,
                 "name": player.fullName,
                 "position": player.position,
-                "team": player.latest_team,
+                "team": player[statsType][endDate].team,
                 "ex_since": player.years_with_jays.at(-1),
                 "gamesPlayed": player[statsType][endDate].gamesPlayed,
                 "atBats": player[statsType][endDate].atBats,
@@ -60,7 +63,7 @@ async function buildTables(dbInstance, statsType, endDate) {
             return {
                 "_id": player._id,
                 "name": player.fullName,
-                "team": player.latest_team,
+                "team": player[statsType][endDate].team,
                 "ex_since": player.years_with_jays.at(-1),
                 "gamesPitched": player[statsType][endDate].gamesPitched,
                 "gamesStarted": player[statsType][endDate].gamesStarted,
