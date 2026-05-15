@@ -6,16 +6,17 @@
             <th></th>
             <th>Position</th>
             <th>Ex since</th>
-            <th>GP</th>
-            <th>AB</th>
-            <th>H</th>
-            <th>BB</th>
-            <th>HR</th>
-            <th>RBI</th>
-            <th>AVG</th>
-            <th>OBP</th>
-            <th>SLG</th>
-            <th>OPS</th>
+            <th title="Games Played">GP</th>
+            <th title="At Bats">AB</th>
+            <th title="Hits">H</th>
+            <th title="Bases on Balls">BB</th>
+            <th title="Home Runs">HR</th>
+            <th title="Runs Batted In">RBI</th>
+            <th title="Batting Average">AVG</th>
+            <th title="On-Base Average">OBP</th>
+            <th title="Slugging Average">SLG</th>
+            <th title="OBP plus Slugging">OPS</th>
+            <th title="Runs Created">RC</th>
         </tr>
         </thead>
         <tbody>
@@ -33,6 +34,7 @@
                                        <td class="tstat">${player.obp}</td>
                                        <td class="tstat">${player.slg}</td>
                                        <td class="tstat">${player.ops}</td>
+                                       <td class="tstat">${player.runsCreated.toFixed(1)}</td>
                                        </tr>`).join('') %>
         </tbody>
     </table>

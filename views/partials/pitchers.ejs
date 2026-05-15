@@ -5,18 +5,19 @@
             <th>Name</th>
             <th></th>
             <th>Ex since</th>
-            <th>GP</th>
-            <th>GS</th>
-            <th>IP</th>
-            <th>W</th>
-            <th>L</th>
-            <th>ERA</th>
-            <th>K</th>
-            <th>BB</th>
-            <th>HR</th>
-            <th>WHIP</th>
-            <th>S</th>
-            <th>HLD</th>
+            <th title="Games Played">GP</th>
+            <th title="Games Started">GS</th>
+            <th title="Innings Pitched">IP</th>
+            <th title="Wins">W</th>
+            <th title="Losses">L</th>
+            <th title="Earned Run Average">ERA</th>
+            <th title="Strikeouts">K</th>
+            <th title="Bases on Balls Allowed">BB</th>
+            <th title="Home Runs Allowed">HR</th>
+            <th title="Walks plus Hits per Innings Pitched">WHIP</th>
+            <th title="Saves">S</th>
+            <th title="Holds">HLD</th>
+            <th title="Runs Prevented">RP</th>
         </tr>
         </thead>
         <tbody>
@@ -35,6 +36,7 @@
                                             <td class="tstat">${player.whip}</td>
                                             <td class="tstat">${player.saves}</td>
                                             <td class="tstat">${player.holds}</td>
+                                            <td class="tstat">${player.runsPrevented.toFixed(1)}</td>
                                             </tr>`).join('') %>
         </tbody>
     </table>
