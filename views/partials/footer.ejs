@@ -1,9 +1,20 @@
 <footer>
     <div class="exjayline"></div>
     <p>
-        Copyright (2026) by Mark Fruman
-    </p>
-    <p>
         All data <a href="http://gdx.mlb.com/components/copyright.txt">copyright</a> of MLB Advanced Media, L.P.
     </p>
+
+    <div class="exjaycopyright">
+        <% if (locals.email) { %>
+            <p>
+                Copyright (2026) by Mark Fruman<BR>
+                <%= business_address %><BR>
+                <a href="https://exbluejays.ca/privacy">Privacy Policy</a>
+            </p>
+        <% } else { %>
+            <p>
+                Copyright (2026) by Mark Fruman
+            </p>
+        <% } %>
+    </div>
 </footer>

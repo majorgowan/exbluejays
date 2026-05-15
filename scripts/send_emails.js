@@ -1,7 +1,6 @@
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const nodemailer = require('nodemailer');
 const {connectToDatabase, closeConnection} = require("../utils/db");
 const Email = require('email-templates');
 const {buildTables} = require("../utils/tables");
@@ -10,8 +9,12 @@ const argv = require('yargs')
     .option("render", {
         alias: "r",
         type: "boolean",
-        default: "false",
+        default: false,
         describe: "render the email but do not sent"
+    })
+    .option("endDate", {
+        type: "string",
+        describe: "specify end date"
     })
     .option("destination", {
         alias: "d",
@@ -19,18 +22,19 @@ const argv = require('yargs')
         describe: "destination email address"
     }).argv;
 
-const transporter = nodemailer.createTransport({
-    host: process.env.MAILGUN_SMTP_SERVER,
-    port: process.env.MAILGUN_SMTP_PORT,
-    auth: {
-        user: process.env.MAILGUN_SMTP_LOGIN,
-        pass: process.env.MAILGUN_SMTP_PASSWORD
-    }
+const mailgun = require('mailgun-js')({
+    apiKey: process.env.MAILGUN_API_KEY,
+    domain: process.env.MAILGUN_DOMAIN
 });
 
 const renderOnly = argv.render;
 const destinationEmail = argv.destination;
+const endDate = argv.endDate;
 const senderEmail = process.env.EMAIL_SENDER_ADDRESS;
+const businessAddress = process.env.BUSINESS_ADDRESS;
+const endDateString = new Date(endDate).toLocaleDateString('en-US',
+    {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
+);
 
 async function sendEmails() {
 
@@ -48,13 +52,8 @@ async function sendEmails() {
                 "relativeTo": path.resolve("./public")
             }
         },
-        "transport": transporter
+        "send": false
     });
-
-    const endDate = "2026-05-03";
-    const endDateString = new Date(endDate).toLocaleDateString('en-US',
-        {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
-    );
 
     // get stats from Mongo
     const dbInstance = await connectToDatabase("exbluejays");
@@ -69,10 +68,11 @@ async function sendEmails() {
     hitters_ytd.length = 5;
     pitchers_ytd.length = 5;
 
-    const unsubscribe_url = `https://exbluejays.ca/unsubscribe?email=${destinationEmail}`;
+    const unsubscribe_url = `https://exbluejays.ca/unsubscribe?emailAddress=${destinationEmail}`;
 
     const locals = {
         "email_address": destinationEmail,
+        "business_address": businessAddress,
         "unsubscribe_url": unsubscribe_url,
         "hitters_week": hitters_week,
         "pitchers_week": pitchers_week,
@@ -83,28 +83,32 @@ async function sendEmails() {
         "teamAbbMap": teamAbbMap
     }
 
-    if (renderOnly) {
-        const html = await email.render("email", locals);
+    // render the email
+    const html = await email.render("email", locals);
 
+    if (renderOnly) {
+
+        console.log(`Writing e-mail to ./output/email_${endDate}.html`);
         fs.writeFile(`./output/email_${endDate}.html`, html, (err) => {
             if (err) console.error(err);
         });
 
     } else {
 
-        // Render and send an email
-        await email.send({
-            template: "email",
-            message: {
-                "to": destinationEmail,
-                "from": senderEmail,
-                "subject": `Ex-Blue Jays report for ${endDateString}`,
-                "headers": {
-                    "List-Unsubscribe": unsubscribe_url,
-                    "List-Unsubscribe-Post": 'List-Unsubscribe=One-Click'
-                }
-            },
-            locals: locals
+        console.log(`Sending e-mail to ${destinationEmail}`);
+
+        const data = {
+            "to": destinationEmail,
+            "from": senderEmail,
+            "subject": `Ex-Blue Jays report for ${endDateString}`,
+            "html": html,
+            "h:List-Unsubscribe": unsubscribe_url,
+            "h:List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        }
+
+        await mailgun.messages().send(data, (error, body) => {
+            if (error) console.error(error);
+            else console.log(body);
         });
 
     }
