@@ -69,21 +69,17 @@ if (local) {
 }
 
 function checkLatestTeam(stats) {
-    let currentTeam = null;
-    if (stats.length > 0) {
-        for (const split of stats[0]?.splits) {
-            if ("team" in split) {
-                currentTeam = split.team.name;
-            }
-        }
-    }
+    // if multiple teams in interval, latest team is first
+    const currentTeam = stats?.[0]?.splits?.[0]?.team.name;
     return currentTeam;
 }
 
 async function updateStats() {
     const dbInstance = await connectToDatabase("exbluejays");
+    const teamChanges = {};
 
     const playersCollection = dbInstance.collection("players");
+    const notes = [];
 
     let players_array;
     if (bbtest) {
@@ -133,8 +129,11 @@ async function updateStats() {
                 if (!response.ok) throw new Error(`Could not fetch ${player.fullName}`);
                 const data = await response.json();
                 let latestTeam = checkLatestTeam(data.stats);
-                if (latestTeam && latestTeam !== player.latest_team) {
-                    console.log(`${player.fullName} changed from ${player.latest_team} to ${latestTeam}`);
+                if (latestTeam && latestTeam !== player.latest_team && statsType === "stats") {
+                    const note = `${player.fullName} changed from ${player.latest_team} to ${latestTeam}`;
+                    console.log(note);
+                    notes.push(note);
+                    teamChanges[player._id] = latestTeam;
                 }
 
                 if (data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
@@ -165,13 +164,13 @@ async function updateStats() {
                             },
                             {
                                 "$set": {
-                                    "latest_team": latestTeam,
                                     [`${statsType}.${endDateString}`]: updateDict
                                 }
                             }
                         );
                         if (verbose) console.log(`. . . modified ${result.modifiedCount}`);
                         if (verbose) console.log(result);
+                        if (verbose) console.log(latestTeam, player.latest_team);
                     }
                 } else {
                     if (verbose) console.log(". . . no stats");
@@ -191,7 +190,8 @@ async function updateStats() {
                 {
                     "$set":
                         {
-                            [`fetched_${statsType}`]: new Date()
+                            [`fetched_${statsType}`]: new Date(),
+                            "notes": notes
                         }
                 },
                 {
@@ -202,6 +202,25 @@ async function updateStats() {
                 if (verbose) console.log(reportsResult);
             }
         }
+    }
+
+    if (verbose) {
+        console.log("team changes");
+        console.log(teamChanges);
+    }
+    // apply team changes to players collection
+    for (const [player_id, new_team] of Object.entries(teamChanges)) {
+        const result = await playersCollection.updateOne(
+            {
+                "_id": parseInt(player_id),
+            },
+            {
+                "$set": {
+                    "latest_team": new_team
+                }
+            }
+        )
+        if (verbose) console.log(result);
     }
 
     // close MongoDB connection
