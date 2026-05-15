@@ -149,9 +149,10 @@ async function updateStatus() {
                 if (playerData.stats.length > 0 && "splits" in playerData.stats[0]) {
                     const playerInfo = checkCareerTeams(playerData.stats[0]?.splits);
                     // update years_with_jays and latest_team
-                    // if no longer with the Jays,
+                    // add even if still with Jays (filter at report time)
+                    // to keep track of Jays that leave team each week
                     // upsert player into exBlueJays collection
-                    if (!(playerInfo.latest_team.includes("Toronto")) && playerInfo.years_with_jays.length > 0) {
+                    if (playerInfo.years_with_jays.length > 0) {
                         const exJayInfo = {...player, ...playerInfo};
                         const updateResult = await exBlueJaysCollection.updateOne(
                             {"_id": exJayInfo._id},

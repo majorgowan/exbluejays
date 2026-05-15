@@ -136,7 +136,7 @@ async function updateStats() {
                     teamChanges[player._id] = latestTeam;
                 }
 
-                if (data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
+                if (!(latestTeam.includes("Toronto")) && data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
 
                     const updateDict = data.stats[0].splits.at(-1)["stat"];
                     updateDict.team = latestTeam;
