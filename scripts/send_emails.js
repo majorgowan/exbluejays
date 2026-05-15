@@ -62,11 +62,26 @@ async function sendEmails() {
     const { hitters: hitters_ytd, pitchers: pitchers_ytd } = await buildTables(dbInstance, "ytd", endDate);
 
     // only list the best 5 hitters and pitchers
-    // TODO: create function to better select the best (including minimum games requirement)
-    hitters_week.length = 5;
-    pitchers_week.length = 5;
-    hitters_ytd.length = 5;
-    pitchers_ytd.length = 5;
+    // sort pitchers by Runs Prevented
+    pitchers_week.sort((pa, pb) => {
+        return pb.frumans - pa.frumans;
+    });
+    pitchers_ytd.sort((pa, pb) => {
+       return pb.frumans - pa.frumans;
+    });
+
+    // sort hitters by Runs Created
+    hitters_week.sort((ha, hb) => {
+        return hb.runsCreated - ha.runsCreated;
+    });
+    hitters_ytd.sort((ha, hb) => {
+        return hb.runsCreated - ha.runsCreated;
+    });
+
+    hitters_week.length = 6;
+    pitchers_week.length = 6;
+    hitters_ytd.length = 6;
+    pitchers_ytd.length = 6;
 
     const unsubscribe_url = `https://exbluejays.ca/unsubscribe?emailAddress=${destinationEmail}`;
 

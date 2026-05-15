@@ -65,6 +65,7 @@ async function buildTables(dbInstance, statsType, endDate) {
         }).map(player => {
             const ps = player[statsType][endDate];
             const runsPrevented = (4.8 / 9 * ps.inningsPitched ) - ps.earnedRuns;
+            const frumans = runsPrevented + 0.5 * ( ps.saves - 0.5 * ps.blownSaves + 0.25 * ps.holds );
             return {
                 "_id": player._id,
                 "name": player.fullName,
@@ -84,7 +85,8 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "earnedRuns": ps.earnedRuns,
                 "strikeOuts": ps.strikeOuts,
                 "baseOnBalls": ps.baseOnBalls,
-                "RP": runsPrevented
+                "runsPrevented": runsPrevented,
+                "frumans": frumans
             };
         });
     // sort pitchers by ERA then WHIP
