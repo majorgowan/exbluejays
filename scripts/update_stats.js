@@ -51,8 +51,8 @@ if (endDate) {
         endDateObj.setUTCDate(endDateObj.getUTCDate() - day);
     }
 }
+const endDateString = endDateObj.toISOString().split("T")[0];
 const currentYear = endDateObj.getFullYear().toString();
-
 
 if (local) {
     try {
@@ -109,7 +109,6 @@ async function updateStats() {
         }
 
         const startDateString = startDateObj.toISOString().split("T")[0];
-        const endDateString = endDateObj.toISOString().split("T")[0];
 
         console.log(`Fetching stats for ${startDateString} (${dayNames[startDateObj.getUTCDay()]}) to ${endDateString} (${dayNames[endDateObj.getUTCDay()]})`);
 
@@ -136,7 +135,7 @@ async function updateStats() {
                     teamChanges[player._id] = latestTeam;
                 }
 
-                if (!(latestTeam.includes("Toronto")) && data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
+                if ((latestTeam && !latestTeam.includes("Toronto")) && data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
 
                     const updateDict = data.stats[0].splits.at(-1)["stat"];
                     updateDict.team = latestTeam;
@@ -179,28 +178,70 @@ async function updateStats() {
                 console.error(error);
             }
         }
+    }
 
-        if (!local) {
-            // update reports collection
-            const reportsCollection = dbInstance.collection("reports");
-            const reportsResult = await reportsCollection.updateOne(
-                {
-                    "endDate": endDateString
-                },
-                {
-                    "$set":
-                        {
-                            [`fetched_${statsType}`]: new Date(),
-                            "notes": notes
-                        }
-                },
-                {
-                    "upsert": true
+    // check Blue Jays schedule for the coming 7 days
+    const nextDayObj = new Date(endDate);
+    const nextWeekObj = new Date(endDate);
+    nextDayObj.setUTCDate(nextDayObj.getUTCDate() + 1);
+    nextWeekObj.setUTCDate(nextWeekObj.getUTCDate() + 7);
+    const nextDayString = nextDayObj.toISOString().split("T")[0];
+    const nextWeekString = nextWeekObj.toISOString().split("T")[0];
+    const schedule_url = `${MLB_API}/api/v1/schedule?sportId=1&teamId=141&startDate=${nextDayString}&endDate=${nextWeekString}`;
+    const schedule = [];
+
+    try {
+        if (verbose) console.log(`fetching schedule at ${schedule_url}`);
+        const response = await fetch(schedule_url);
+        if (!response.ok) throw new Error("Could not fetch schedule");
+        const data = await response.json();
+
+        if ("dates" in data) {
+            for (const date of data.dates) {
+                for (const game of date?.games) {
+                    const entry = {
+                        "officialDate": game.officialDate,
+                        "venue": game.venue.name,
+                    };
+                    if (game.teams.away.team.name.includes("Toronto")) {
+                        entry.opponent = game.teams.home.team.name;
+                        entry.home = false;
+                        entry.phrase = "at";
+                    } else {
+                        entry.opponent = game.teams.away.team.name;
+                        entry.home = true;
+                        entry.phrase = "home to";
+                    }
+                    schedule.push(entry);
                 }
-            );
-            if (reportsResult.acknowledged) {
-                if (verbose) console.log(reportsResult);
             }
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+
+    if (!local) {
+        // update reports collection
+        const reportsCollection = dbInstance.collection("reports");
+        const reportsResult = await reportsCollection.updateOne(
+            {
+                "endDate": endDateString
+            },
+            {
+                "$set":
+                    {
+                        "updated": new Date(),
+                        "notes": notes,
+                        "jays_schedule": schedule
+                    }
+            },
+            {
+                "upsert": true
+            }
+        );
+        if (reportsResult.acknowledged) {
+            if (verbose) console.log(reportsResult);
         }
     }
 
