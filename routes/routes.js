@@ -97,7 +97,8 @@ router.get("/report", async (req, res) => {
             hitters: hitters,
             pitchers: pitchers,
             ytd: ytd,
-            schedule: schedule
+            schedule: schedule,
+            players_url: process.env.PLAYERS_URL
         });
 });
 

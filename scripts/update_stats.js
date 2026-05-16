@@ -70,8 +70,7 @@ if (local) {
 
 function checkLatestTeam(stats) {
     // if multiple teams in interval, latest team is first
-    const currentTeam = stats?.[0]?.splits?.[0]?.team.name;
-    return currentTeam;
+    return stats?.[0]?.splits?.[0]?.team.name;
 }
 
 async function updateStats() {
