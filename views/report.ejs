@@ -33,6 +33,13 @@
 </h3>
 <%- include("partials/pitchers.ejs") %>
 
+<% if (locals.schedule) { %>
+    <h3 class="exjayheading">
+        Blue Jays opponents this week
+    </h3>
+    <%- include("partials/schedule.ejs") %>
+<% } %>
+
 <%- include("partials/subscribe_link.ejs") %>
 
 </body>

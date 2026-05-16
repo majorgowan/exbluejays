@@ -32,6 +32,13 @@
 </h4>
 <%- include("partials/pitchers.ejs", { pitchers: pitchers_ytd }) %>
 
+<% if (locals.schedule) { %>
+    <h3 class="exjayheading">
+        Blue Jays opponents this week
+    </h3>
+    <%- include("partials/schedule.ejs") %>
+<% } %>
+
 <p>
     This email was sent to <%= email_address %>.
     <a href="<%= unsubscribe_url %>">Unsubscribe</a> from the Ex-Blue Jay Report.

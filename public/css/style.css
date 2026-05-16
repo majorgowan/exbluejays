@@ -18,6 +18,13 @@ p {
 .exjayheading {
     color: darkred;
 }
+.exjaybold {
+    color: darkred;
+}
+.exjayname {
+    color: navy;
+    font-style: italic;
+}
 .exjayheading a:link, a:visited {
     color: inherit;
     text-decoration: none;
@@ -27,6 +34,10 @@ p {
     color: steelblue;
     font-size: large;
     line-height: 2;
+}
+.exjayseries {
+    margin-bottom: 20px;
+    line-height: 1.6;
 }
 
 .exjaylist li::marker {

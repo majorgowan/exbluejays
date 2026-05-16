@@ -1,0 +1,25 @@
+<div>
+    <ul>
+        <% Object.keys(schedule).forEach(function(series) { %>
+            <li class="exjayseries">
+                from <span class="exjaybold"><%= schedule[series].from_date %></span>
+                to <span class="exjaybold"><%= schedule[series].to_date %></span>
+                the Jays are <span class="exjaybold"><%= series %></span>
+                <% if (schedule[series].hitters.length + schedule[series].pitchers.length > 0) { %>
+                    where they could face
+                    <% if (schedule[series].hitters.length > 0) { %>
+                        <span class="exjaybold">ex-bats</span>
+                        <span class="exjayname"><%= schedule[series].hitters.join(", ") %></span>
+                        <% if (schedule[series].pitchers.length > 0) { %>
+                            and
+                        <% } %>
+                    <% } %>
+                    <% if (schedule[series].pitchers.length > 0) { %>
+                        <span class="exjaybold">ex-arms</span>
+                        <span class="exjayname"><%= schedule[series].pitchers.join(", ") %></span>
+                    <% } %>
+                <% } %>
+            </li>
+        <% }); %>
+    </ul>
+</div>

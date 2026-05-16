@@ -206,11 +206,11 @@ async function updateStats() {
                     if (game.teams.away.team.name.includes("Toronto")) {
                         entry.opponent = game.teams.home.team.name;
                         entry.home = false;
-                        entry.phrase = "at";
+                        entry.phrase = "at the";
                     } else {
                         entry.opponent = game.teams.away.team.name;
                         entry.home = true;
-                        entry.phrase = "home to";
+                        entry.phrase = "home to the";
                     }
                     schedule.push(entry);
                 }

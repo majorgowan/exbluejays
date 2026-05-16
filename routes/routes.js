@@ -1,6 +1,7 @@
 const express = require('express');
 const {connectToDatabase} = require("../utils/db");
 const {buildTables} = require("../utils/tables");
+const {buildSchedule} = require("../utils/schedule");
 const {teamAbbMap} = require("../utils/mlb");
 
 const router = express.Router();
@@ -79,6 +80,7 @@ router.get("/report", async (req, res) => {
     }
 
     const { hitters, pitchers } = await buildTables(dbInstance, statsType, endDate);
+    const schedule = await buildSchedule(dbInstance, endDate);
 
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
         {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
@@ -94,7 +96,8 @@ router.get("/report", async (req, res) => {
             teamAbbMap: teamAbbMap,
             hitters: hitters,
             pitchers: pitchers,
-            ytd: ytd
+            ytd: ytd,
+            schedule: schedule
         });
 });
 
