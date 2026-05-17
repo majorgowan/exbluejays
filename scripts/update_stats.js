@@ -1,6 +1,7 @@
 require("dotenv").config();
 const fs = require("fs");
-const {connectToDatabase, closeConnection} = require("../utils/db");
+const { connectToDatabase, closeConnection } = require("../utils/db");
+const { getSchedule } = require("../utils/schedule");
 const argv = require("yargs")
     .option("local", {
         type: "boolean",
@@ -180,45 +181,7 @@ async function updateStats() {
     }
 
     // check Blue Jays schedule for the coming 7 days
-    const nextDayObj = new Date(endDate);
-    const nextWeekObj = new Date(endDate);
-    nextDayObj.setUTCDate(nextDayObj.getUTCDate() + 1);
-    nextWeekObj.setUTCDate(nextWeekObj.getUTCDate() + 7);
-    const nextDayString = nextDayObj.toISOString().split("T")[0];
-    const nextWeekString = nextWeekObj.toISOString().split("T")[0];
-    const schedule_url = `${MLB_API}/api/v1/schedule?sportId=1&teamId=141&startDate=${nextDayString}&endDate=${nextWeekString}`;
-    const schedule = [];
-
-    try {
-        if (verbose) console.log(`fetching schedule at ${schedule_url}`);
-        const response = await fetch(schedule_url);
-        if (!response.ok) throw new Error("Could not fetch schedule");
-        const data = await response.json();
-
-        if ("dates" in data) {
-            for (const date of data.dates) {
-                for (const game of date?.games) {
-                    const entry = {
-                        "officialDate": game.officialDate,
-                        "venue": game.venue.name,
-                    };
-                    if (game.teams.away.team.name.includes("Toronto")) {
-                        entry.opponent = game.teams.home.team.name;
-                        entry.home = false;
-                        entry.phrase = "at the";
-                    } else {
-                        entry.opponent = game.teams.away.team.name;
-                        entry.home = true;
-                        entry.phrase = "home to the";
-                    }
-                    schedule.push(entry);
-                }
-            }
-        }
-
-    } catch (error) {
-        console.error(error);
-    }
+    const schedule = await getSchedule(dbInstance, endDate, verbose);
 
     if (!local) {
         // update reports collection

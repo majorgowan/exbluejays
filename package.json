@@ -1,7 +1,7 @@
 {
   "name": "exbluejays",
   "version": "1.0.0",
-  "description": "tracking former Toronto Blue Jays",
+  "description": "following former Toronto Blue Jays",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -10,6 +10,7 @@
   "author": "Mark Fruman",
   "license": "ISC",
   "dependencies": {
+    "@cerebras/cerebras_cloud_sdk": "^1.64.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",

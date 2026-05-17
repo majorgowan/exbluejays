@@ -7,6 +7,8 @@ const subscriptionRoutes = require("./routes/subscriptions");
 const { handleCsrfError, handleMongoError } = require("./routes/errors");
 
 const app = express();
+
+// Use EJS templates for html files
 app.set('view engine', 'ejs');
 
 // CSRF protection
@@ -18,6 +20,7 @@ app.use(csrfProtection);
 // Parse JSON bodies
 app.use(express.json());
 
+// Expose static files in public folder
 app.use(express.static("public"));
 
 // Routes
@@ -28,6 +31,7 @@ app.use("/", subscriptionRoutes);
 app.use(handleCsrfError);
 app.use(handleMongoError);
 
+// Start server
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server running on port 3000");
 });

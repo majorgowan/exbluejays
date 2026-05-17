@@ -3,8 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const {connectToDatabase, closeConnection} = require("../utils/db");
 const Email = require('email-templates');
-const {buildTables} = require("../utils/tables");
-const {buildSchedule} = require("../utils/schedule");
+const { buildTables } = require("../utils/tables");
+const { buildSeries } = require("../utils/schedule");
 const {teamAbbMap} = require("../utils/mlb");
 const argv = require('yargs')
     .option("render", {
@@ -56,9 +56,9 @@ async function sendEmails() {
         "send": false
     });
 
-    // get stats from Mongo
     const dbInstance = await connectToDatabase("exbluejays");
 
+    // get stats from Mongo
     const { hitters: hitters_week, pitchers: pitchers_week } = await buildTables(dbInstance, "stats", endDate);
     const { hitters: hitters_ytd, pitchers: pitchers_ytd } = await buildTables(dbInstance, "ytd", endDate);
 
@@ -85,8 +85,9 @@ async function sendEmails() {
     pitchers_ytd.length = 6;
 
     // get schedule for the week to come
-    const schedule = await buildSchedule(dbInstance, endDate);
+    const schedule = await buildSeries(dbInstance, endDate);
 
+    // URL to unsubscribe from EBJR
     const unsubscribe_url = `https://exbluejays.ca/unsubscribe?emailAddress=${destinationEmail}`;
 
     const locals = {

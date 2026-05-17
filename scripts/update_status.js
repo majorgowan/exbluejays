@@ -121,7 +121,7 @@ async function updateStatus() {
             }
             // pause to be nice
             if (counter % 10 === 0) {
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Pause for 1 second
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Pause for 2 second
             }
         }
     }
@@ -168,7 +168,7 @@ async function updateStatus() {
         }
         // pause to be nice
         if (counter % 10 === 0) {
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Pause for 1 second
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Pause for 2 seconds
         }
     }
 
