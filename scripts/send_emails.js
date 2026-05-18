@@ -1,11 +1,11 @@
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const {connectToDatabase, closeConnection} = require("../utils/db");
+const { connectToDatabase, closeConnection } = require("../utils/db");
 const Email = require('email-templates');
 const { buildTables } = require("../utils/tables");
 const { buildSeries } = require("../utils/schedule");
-const {teamAbbMap} = require("../utils/mlb");
+const { teamAbbMap } = require("../utils/mlb");
 const argv = require('yargs')
     .option("render", {
         alias: "r",
@@ -33,6 +33,7 @@ const destinationEmail = argv.destination;
 const endDate = argv.endDate;
 const senderEmail = process.env.EMAIL_SENDER_ADDRESS;
 const businessAddress = process.env.BUSINESS_ADDRESS;
+
 const endDateString = new Date(endDate).toLocaleDateString('en-US',
     {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
 );
@@ -62,7 +63,7 @@ async function sendEmails() {
     const { hitters: hitters_week, pitchers: pitchers_week } = await buildTables(dbInstance, "stats", endDate);
     const { hitters: hitters_ytd, pitchers: pitchers_ytd } = await buildTables(dbInstance, "ytd", endDate);
 
-    // only list the best 5 hitters and pitchers
+    // only list the best few hitters and pitchers
     // sort pitchers by Runs Prevented
     pitchers_week.sort((pa, pb) => {
         return pb.frumans - pa.frumans;
@@ -101,7 +102,8 @@ async function sendEmails() {
         "schedule": schedule,
         "endDateString": endDateString,
         "endDate": endDate,
-        "teamAbbMap": teamAbbMap
+        "teamAbbMap": teamAbbMap,
+        "players_url": process.env.PLAYERS_URL
     }
 
     // render the email

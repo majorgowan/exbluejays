@@ -2,6 +2,7 @@ require("dotenv").config();
 const fs = require("fs");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { getSchedule } = require("../utils/schedule");
+const { lastSunday } = require("../utils/utils");
 const argv = require("yargs")
     .option("local", {
         type: "boolean",
@@ -44,13 +45,7 @@ if (endDate) {
     endDateObj = new Date(endDate);
 } else {
     // use last Sunday
-    endDateObj = new Date();
-    const day = endDateObj.getUTCDay();
-    if (day === 0) {
-        endDateObj.setUTCDate(endDateObj.getUTCDate() - 7);
-    } else {
-        endDateObj.setUTCDate(endDateObj.getUTCDate() - day);
-    }
+    endDateObj = lastSunday();
 }
 const endDateString = endDateObj.toISOString().split("T")[0];
 const currentYear = endDateObj.getFullYear().toString();
@@ -119,13 +114,15 @@ async function updateStats() {
             if (player.position === "Pitcher") {
                 statsGroup = "pitching";
             }
-            const player_url = `${MLB_API}${player.link}/stats?stats=byDateRange&season=${currentYear}&group=${statsGroup}&startDate=${startDateString}&endDate=${endDate}`;
+            const player_url = `${MLB_API}${player.link}/stats?stats=byDateRange&season=${currentYear}&group=${statsGroup}&startDate=${startDateString}&endDate=${endDateString}`;
             // console.log(player_url);
             if (verbose) console.log(`fetching ${player.fullName}`);
 
             try {
                 const response = await fetch(player_url);
-                if (!response.ok) throw new Error(`Could not fetch ${player.fullName}`);
+                if (!response.ok) {
+                    throw new Error(`Could not fetch ${player.fullName}`);
+                }
                 const data = await response.json();
                 let latestTeam = checkLatestTeam(data.stats);
                 if (latestTeam && latestTeam !== player.latest_team && statsType === "stats") {
@@ -181,7 +178,7 @@ async function updateStats() {
     }
 
     // check Blue Jays schedule for the coming 7 days
-    const schedule = await getSchedule(dbInstance, endDate, verbose);
+    const schedule = await getSchedule(dbInstance, endDateString, verbose);
 
     if (!local) {
         // update reports collection
