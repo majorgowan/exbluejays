@@ -3,8 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const Email = require('email-templates');
-const { buildTables } = require("../utils/tables");
-const { buildSeries } = require("../utils/schedule");
+const { buildTables, buildSeries, buildSummary} = require("../utils/builders");
 const { teamAbbMap } = require("../utils/mlb");
 const argv = require('yargs')
     .option("render", {
@@ -88,6 +87,9 @@ async function sendEmails() {
     // get schedule for the week to come
     const schedule = await buildSeries(dbInstance, endDate);
 
+    // get summary from reports
+    const summary = await buildSummary(dbInstance, endDate);
+
     // URL to unsubscribe from EBJR
     const unsubscribe_url = `https://exbluejays.ca/unsubscribe?emailAddress=${destinationEmail}`;
 
@@ -100,6 +102,7 @@ async function sendEmails() {
         "hitters_ytd": hitters_ytd,
         "pitchers_ytd": pitchers_ytd,
         "schedule": schedule,
+        "summary": summary,
         "endDateString": endDateString,
         "endDate": endDate,
         "teamAbbMap": teamAbbMap,

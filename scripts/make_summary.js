@@ -1,8 +1,7 @@
 require("dotenv").config();
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { buildPrompt, askCerebras } = require("../utils/cerebras");
-const { buildTables } = require("../utils/tables");
-const { buildSeries } = require("../utils/schedule");
+const { buildTables, buildSeries } = require("../utils/builders");
 const { lastSunday } = require("../utils/utils");
 const argv = require('yargs')
     .option("endDate", {

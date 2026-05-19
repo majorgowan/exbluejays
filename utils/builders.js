@@ -104,4 +104,46 @@ async function buildTables(dbInstance, statsType, endDate) {
     }
 }
 
-module.exports = { buildTables };
+
+async function buildSummary(dbInstance, endDate) {
+    // retrieve summary for specified date
+    const summaryDoc = await dbInstance.collection("reports").findOne(
+        { "endDate": endDate },
+        { "summary": 1 }
+    );
+
+    return summaryDoc.summary;
+}
+
+
+async function buildSeries(dbInstance, endDate) {
+    // retrieve schedule from the report
+    const scheduleDoc = await dbInstance.collection("reports").findOne(
+        {"endDate": endDate},
+        {"jays_schedule": 1}
+    );
+
+    if (!scheduleDoc) return null;
+
+    const series = {};
+    for (const game of scheduleDoc.jays_schedule.games) {
+        const key = `${game.phrase} ${game.opponent}`
+        if (key in series) {
+            series[key].to_date = game.officialDate;
+        } else {
+            series[key] = {
+                opponent: game.opponent,
+                venue: game.venue,
+                phrase: game.phrase,
+                from_date: game.officialDate,
+                exBats: scheduleDoc.jays_schedule.exBats[game.opponent],
+                exArms: scheduleDoc.jays_schedule.exArms[game.opponent],
+            }
+        }
+    }
+
+    return series;
+}
+
+
+module.exports = { buildTables, buildSeries, buildSummary };

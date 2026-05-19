@@ -1,12 +1,11 @@
 const express = require('express');
 const { connectToDatabase } = require("../utils/db");
-const { buildTables } = require("../utils/tables");
-const { buildSeries } = require("../utils/schedule");
+const { buildTables, buildSeries, buildSummary } = require("../utils/builders");
 const { teamAbbMap} = require("../utils/mlb");
 
 const router = express.Router();
 
-``
+
 router.get("/", async (req, res) => {
     const dbInstance = await connectToDatabase("exbluejays");
 
@@ -81,6 +80,7 @@ router.get("/report", async (req, res) => {
 
     const { hitters, pitchers } = await buildTables(dbInstance, statsType, endDate);
     const schedule = await buildSeries(dbInstance, endDate);
+    const summary = await buildSummary(dbInstance, endDate);
 
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
         {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
@@ -98,6 +98,7 @@ router.get("/report", async (req, res) => {
             pitchers: pitchers,
             ytd: ytd,
             schedule: schedule,
+            summary: summary,
             players_url: process.env.PLAYERS_URL
         });
 });

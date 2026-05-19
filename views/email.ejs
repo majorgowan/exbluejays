@@ -6,6 +6,10 @@
 <body>
 <h2 class="exjayheading">Your report for Week Ending <%= endDateString %></h2>
 
+<% if (locals.summary) { %>
+    <%- include("partials/summary.ejs") %>
+<% } %>
+
 <p>
     Check out the <a href="https://exbluejays.ca/?endDate=<%= endDate %>">full report</a>.
 </p>
