@@ -140,6 +140,7 @@ async function updateStatus() {
             // if he plays for a different team
             const playerGroup = (player.position === "Pitcher") ? "pitching" : "hitting";
             const playerURL = `${MLB_API}${player.link}/stats?stats=yearByYear&group=${playerGroup}`;
+            const playerBaseURL = `${MLB_API}${player.link}`;
 
             try {
                 const response = await fetch(playerURL);
@@ -165,6 +166,32 @@ async function updateStatus() {
             } catch (err) {
                 console.error(err);
             }
+            // visit player's base profile endpoint and update personal information
+            try {
+                if (verbose) console.log(`Updating ${player.fullName} personal info.`);
+                const response = await fetch(playerBaseURL);
+                if (!response.ok) throw new Error(`Could not fetch ${playerURL}`);
+                const playerData = await response.json();
+
+                const updateInfo = {
+                    position: playerData.people[0].primaryPosition.name,
+                    birthDate: playerData.people[0].birthDate,
+                    birthCity: playerData.people[0].birthCity,
+                    birthCountry: playerData.people[0].birthCountry,
+                    batSide: playerData.people[0].batSide.description,
+                    pitchHand: playerData.people[0].pitchHand.description
+                };
+
+                // update player in exBlueJays collection
+                const updateResult = await exBlueJaysCollection.updateOne(
+                    {"_id": player._id},
+                    {"$set": updateInfo},
+                );
+                if (verbose) console.log(updateResult);
+            } catch (err) {
+                console.error(err);
+            }
+
         }
         // pause to be nice
         if (counter % 10 === 0) {
