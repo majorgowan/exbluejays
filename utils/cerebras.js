@@ -65,16 +65,18 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     The Blue Jays' schedule for the next week is: 
     ${scheduleString.join("\n")}
     
-    In three or four sentences, please summarize the outstanding performances from the past week?
+    In three or four sentences, please summarize the outstanding performances from the past week.
     
     In a sentence or two, mention the best hitters and pitchers of the season so far.
     
     In a final sentence, mention the Blue Jays' opponents for the next week and any former teammates they might
     face in those series. 
     
-    Please use the style of a 1950s sports report.  Please do not accidentally say any of the players are still with the Blue Jays.
+    Please use the style of a 1950s sports report.
     
-    Introduce yourself at the beginning.  
+    Please do not accidentally say any of the players are still with the Blue Jays.
+    
+    Introduce yourself at the beginning but do not actually use the word old-timey.
     
     Try to work in the year the players last played for Toronto and how they are fondly remembered.`
 

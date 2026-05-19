@@ -70,7 +70,7 @@ async function makeSummary() {
     }
 
     const summary = await askCerebras(prompt);
-    if (verbose) {
+    if (verbose || testing) {
         console.log("summary: \n\n");
         console.log(summary);
     }
