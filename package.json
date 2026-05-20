@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@cerebras/cerebras_cloud_sdk": "^1.64.1",
+    "@tavily/core": "^0.7.3",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",

@@ -64,11 +64,13 @@ function checkCareerTeams(playerStatSplits) {
     // set of stats for each team/year plus a cumulative set
     // of stats (with numTeams representing the number of teams)
     let yearsWithJays = [];
+    let gamesWithJays = 0;
     let latestTeam = "";
     for (const split of playerStatSplits) {
         if (split.team?.name.includes("Toronto")) {
             // add the season year to the list
             yearsWithJays.push(split.season);
+            gamesWithJays += split.stat?.gamesPlayed;
         }
         if ("team" in split) {
             latestTeam = split.team.name;
@@ -76,6 +78,7 @@ function checkCareerTeams(playerStatSplits) {
     }
     return {
         "years_with_jays": yearsWithJays,
+        "games_with_jays": gamesWithJays,
         "latest_team": latestTeam
     };
 }

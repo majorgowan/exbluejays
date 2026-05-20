@@ -43,10 +43,12 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
                 + (row.exBats.length > 0 ? `ex bats ${row.exBats.join(",")}` : ""));
     });
 
+    const notes_string = (notes?.length > 0 ? `\nHere are some team change notes:\n ${notes.join("\n")}` : "There are no team change notes.");
+
     let prompt = `Your name is Mister Ex and you are an old timey sports reporter whose beat is former Toronto Blue Jays.
     
     Here are statistics for some former Toronto Blue Jays players for the last week.  The
-    column "ex_since" represents the last year they played with Toronto.
+    column "ex_since" represents the last year they played with Toronto and JGP the number of games played as a Blue Jay in their career.
     
     Hitters:
     ${jsonToMarkdown(hitters_week, Object.keys(hitters_week[0]))}
@@ -65,7 +67,13 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     The Blue Jays' schedule for the next week is: 
     ${scheduleString.join("\n")}
     
+    ${notes_string}
+    
     In three or four sentences, please summarize the outstanding performances from the past week.
+    
+    If there are any team-change notes, please mention them.
+    
+    Emphasize players with higher number of career games played as a Blue Jay (JGP).
     
     In a sentence or two, mention the best hitters and pitchers of the season so far.
     
@@ -77,6 +85,8 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     Please do not accidentally say any of the players are still with the Blue Jays.
     
     Introduce yourself at the beginning but do not actually use the word old-timey.
+    
+    Please be careful not to invent statistics or misread the tables.
     
     Try to work in the year the players last played for Toronto and how they are fondly remembered.`
 

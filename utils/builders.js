@@ -16,7 +16,8 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "position": 1,
                 "latest_team": 1,
                 [`${statsType}.${endDate}`]: 1,
-                "years_with_jays": 1
+                "years_with_jays": 1,
+                "games_with_jays": 1
             }
         },
         {
@@ -39,6 +40,7 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "position": player.position,
                 "team": ps.team,
                 "ex_since": player.years_with_jays.at(-1),
+                "gamesWithJays": player.games_with_jays,
                 "gamesPlayed": ps.gamesPlayed,
                 "atBats": ps.atBats,
                 "avg": ps.avg,
@@ -71,6 +73,7 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "name": player.fullName,
                 "team": ps.team,
                 "ex_since": player.years_with_jays.at(-1),
+                "gamesWithJays": player.games_with_jays,
                 "gamesPitched": ps.gamesPitched,
                 "gamesStarted": ps.gamesStarted,
                 "inningsPitched": ps.inningsPitched,

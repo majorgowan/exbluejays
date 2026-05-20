@@ -6,19 +6,18 @@
                 to <span class="exjaybold"><%= schedule[series].to_date %></span>
                 the Jays are <span class="exjaybold"><%= series %></span>
                 <% if (schedule[series].exBats.length + schedule[series].exArms.length > 0) { %>
-                    <BR>(
+                    <BR>
                     <% if (schedule[series].exBats.length > 0) { %>
                         <span class="exjaybold">ex-bats: </span>
                         <span class="exjayname"><%= schedule[series].exBats.join(", ") %></span>
                         <% if (schedule[series].exArms.length > 0) { %>
-                            ;&emsp;&emsp;
+                            <BR>
                         <% } %>
                     <% } %>
                     <% if (schedule[series].exArms.length > 0) { %>
                         <span class="exjaybold">ex-arms: </span>
                         <span class="exjayname"><%= schedule[series].exArms.join(", ") %></span>
                     <% } %>
-                    )
                 <% } %>
             </li>
         <% }); %>

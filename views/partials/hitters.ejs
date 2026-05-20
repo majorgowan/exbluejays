@@ -5,7 +5,8 @@
             <th>Name</th>
             <th></th>
             <th>Position</th>
-            <th>Ex since</th>
+            <th title="Games Played as Blue Jay">JGP</th>
+            <th title="Last Year with Blue Jays">Ex since</th>
             <th title="Games Played">GP</th>
             <th title="At Bats">AB</th>
             <th title="Hits">H</th>
@@ -23,6 +24,7 @@
         <%- hitters.map(player => `<tr><td><a class="exjayplayerlink" href="${players_url}/${player._id}" target="_blank" rel="noopener noreferrer">${player.name}</a></td>
                                        <td><i class="logo bbclub-${teamAbbMap[player.team]}" title="${player.team}"></i></td>
                                        <td>${player.position}</td>
+                                       <td>${player.gamesWithJays}</td>
                                        <td>${player.ex_since}</td>
                                        <td class="tstat">${player.gamesPlayed}</td>
                                        <td class="tstat">${player.atBats}</td>
