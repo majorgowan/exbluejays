@@ -50,14 +50,6 @@ router.get("/", async (req, res) => {
 router.get("/report", async (req, res) => {
     let endDate = req.query.endDate;
     let statsType;
-    let ytd;
-    if (req.query.ytd === "true") {
-        statsType = "ytd";
-        ytd = true;
-    } else {
-        statsType = "stats";
-        ytd = false;
-    }
 
     const dbInstance = await connectToDatabase("exbluejays");
 
@@ -78,7 +70,10 @@ router.get("/report", async (req, res) => {
         endDate = endDates[0];
     }
 
-    const { hitters, pitchers } = await buildTables(dbInstance, statsType, endDate);
+    // const { hitters, pitchers } = await buildTables(dbInstance, statsType, endDate);
+    const { hitters: hitters_week, pitchers: pitchers_week } = await buildTables(dbInstance, "stats", endDate);
+    const { hitters: hitters_ytd, pitchers: pitchers_ytd } = await buildTables(dbInstance, "ytd", endDate);
+
     const schedule = await buildSeries(dbInstance, endDate);
     const summary = await buildSummary(dbInstance, endDate);
 
@@ -86,7 +81,7 @@ router.get("/report", async (req, res) => {
         {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
     );
 
-    console.log(`Returning ${hitters.length} ex Blue Jay hitters and ${pitchers.length} ex Blue Jay pitchers.`);
+    console.log(`Returning ${hitters_week.length} ex Blue Jay hitters and ${pitchers_week.length} ex Blue Jay pitchers.`);
 
     res.render('report',
         {
@@ -94,9 +89,10 @@ router.get("/report", async (req, res) => {
             endDates: endDates,
             endDateString: endDateString,
             teamAbbMap: teamAbbMap,
-            hitters: hitters,
-            pitchers: pitchers,
-            ytd: ytd,
+            hitters_week: hitters_week,
+            hitters_ytd: hitters_ytd,
+            pitchers_week: pitchers_week,
+            pitchers_ytd: pitchers_ytd,
             schedule: schedule,
             summary: summary,
             players_url: process.env.PLAYERS_URL

@@ -6,12 +6,11 @@ function changeEndDate() {
 }
 
 function changeYTD() {
-    const checkBox = document.getElementById("ytdCheckbox");
-    const url = new URL(window.location.href);
-    if (checkBox.checked) {
-        url.searchParams.set('ytd', true);
-    } else {
-        url.searchParams.set('ytd', false);
-    }
-    window.location.href = url.toString();
+    const tables = document.querySelectorAll(".exjaytable"); // Select all tables
+
+    // Toggle class on all tables
+    tables.forEach(table => {
+        table.classList.toggle("showtable");
+        table.classList.toggle("hidetable");
+    });
 }

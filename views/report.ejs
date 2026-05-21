@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- TODO: mobile friendly version
+           with panning tables with sticky headings etc.
+           also index page -->
+
 <%- include("partials/header.ejs") %>
 
 <body>
@@ -14,28 +18,41 @@
             <option value="<%= date %>"><%= date %></option>
         <% }); %>
     </select>
-    <span>
-        <input class="exjaycheckbox" id="ytdCheckbox" type="checkbox"
-               name="ytdCheckbox"
-               <%= ytd ? "checked" : "" %>
-               onchange="changeYTD()">
-        <label class="exjaycheckbox" for="ytdCheckbox">YTD</label>
-    </span>
 </div>
 
 <% if (locals.summary) { %>
     <%- include("partials/summary.ejs") %>
 <% } %>
 
-<h3 class="exjayheading">
-    The Ex Bats
-</h3>
-<%- include("partials/hitters.ejs") %>
+<div class="radiodiv">
+    <h3 class="exjayheading">
+        Stats Corner
+    </h3>
+    &emsp; &emsp;
+    &emsp; &emsp;
+    <span>
+        <input class="exjayradio" id="weekRadio" type="radio" value="week"
+               name="exjayradio" checked onchange="changeYTD()">
+        <label class="exjayradio" for="weekRadio">Past week</label>
 
-<h3 class="exjayheading">
+        &emsp; &emsp;
+
+        <input class="exjayradio" id="ytdRadio" type="radio" value="ytd"
+               name="exjayradio" onchange="changeYTD()">
+        <label class="exjayradio" for="ytdRadio">Year-to-date</label>
+    </span>
+</div>
+<h4 class="exjayheading">
+    The Ex Bats
+</h4>
+<%- include("partials/hitters.ejs", { hitters: hitters_week, table_class: "showtable" }) %>
+<%- include("partials/hitters.ejs", { hitters: hitters_ytd, table_class: "hidetable" }) %>
+
+<h4 class="exjayheading">
     The Ex Arms
-</h3>
-<%- include("partials/pitchers.ejs") %>
+</h4>
+<%- include("partials/pitchers.ejs", { pitchers: pitchers_week, table_class: "showtable" } ) %>
+<%- include("partials/pitchers.ejs", { pitchers: pitchers_ytd, table_class: "hidetable" } ) %>
 
 <% if (locals.schedule) { %>
     <h3 class="exjayheading">
