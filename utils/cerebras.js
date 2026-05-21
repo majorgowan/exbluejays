@@ -21,7 +21,7 @@ async function askCerebras(content, max_completion_tokens=1024, temperature=0.2)
             ]
         });
 
-        return response.choices[0].message.content;
+        return response;
 
     } catch (error) {
         if (error instanceof Cerebras.APIError) {

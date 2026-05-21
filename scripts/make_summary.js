@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { createInterface } = require("node:readline/promises");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { buildPrompt, askCerebras } = require("../utils/cerebras");
 const { buildTables, buildSeries } = require("../utils/builders");
@@ -13,6 +14,11 @@ const argv = require('yargs')
         default: false,
         describe: "do not update mongo"
     })
+    .option("yes", {
+        type: "boolean",
+        default: false,
+        describe: "do not ask for keyboard confirmation before committing to mongo"
+    })
     .option("verbose", {
         alias: "v",
         type: "boolean",
@@ -22,11 +28,15 @@ const argv = require('yargs')
 
 const verbose = argv.verbose;
 const testing = argv.testing;
+const yes = argv.yes;
 
 let endDate = argv.endDate;
 if (endDate === undefined) {
     endDate = lastSunday().toISOString().split("T")[0];
 }
+
+// interface for accepting input (if not yes)
+const rl = createInterface({ input: process.stdin, output: process.stdout });
 
 async function makeSummary() {
 
@@ -75,13 +85,23 @@ async function makeSummary() {
         console.log("\n\n");
     }
 
-    const summary = await askCerebras(prompt);
+    const response = await askCerebras(prompt);
+    const summary = response.choices[0].message.content;
     if (verbose || testing) {
         console.log("summary: \n\n");
         console.log(summary);
+        console.log("\nprompt tokens", response.usage.prompt_tokens);
+        console.log("tokens generated", response.usage.completion_tokens);
+        console.log("total tokens", response.usage.total_tokens);
     }
 
-    if (!testing) {
+    let answer = "y";
+    if (!yes && !testing) {
+        // Pause for user confirmation
+        answer = await rl.question("\n\nCommit the summary to Mongodb? (y/n): ");
+    }
+
+    if (!testing && answer === "y") {
         // update reports collection
         const reportsCollection = dbInstance.collection("reports");
         const reportsResult = await reportsCollection.updateOne(
@@ -103,6 +123,10 @@ async function makeSummary() {
         }
     }
 
+    // close user-input interface
+    rl.close();
+
+    // close mongo connection
     await closeConnection();
 }
 
