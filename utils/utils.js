@@ -14,6 +14,7 @@ function lastSunday(endDate=null) {
     return endDateObj;
 }
 
+
 function generateRandomString(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = "";
@@ -23,4 +24,10 @@ function generateRandomString(length) {
     return result;
 }
 
-module.exports = { lastSunday, generateRandomString }
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+module.exports = { lastSunday, generateRandomString, sleep }

@@ -2,7 +2,7 @@ require("dotenv").config();
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { askTavily, buildQuery } = require("../utils/tavily");
 const { rateNews } = require("../utils/cerebras");
-const { lastSunday, generateRandomString } = require("../utils/utils");
+const { lastSunday, generateRandomString, sleep } = require("../utils/utils");
 const argv = require('yargs')
     .option("endDate", {
         type: "string",
@@ -59,10 +59,16 @@ async function processPlayer(player) {
         if (verbose) console.log(articleData);
         if (item.content && item?.score > 0.3) {
             const cerebrasRating = await rateNews(item.content, player);
-            if (verbose) console.log("Cerebras: ", cerebrasRating.choices[0].message.content);
-            articleData.cerebras = JSON.parse(cerebrasRating.choices[0].message.content);
+            if ( !("error" in cerebrasRating) ) {
+                if (verbose) console.log("Cerebras: ", cerebrasRating.choices[0].message.content);
+                articleData.cerebras = JSON.parse(cerebrasRating.choices[0].message.content);
+            } else if (cerebrasRating.error?.status === 429) {
+                // server busy, pause for a minute
+                if (verbose) console.log("Pausing for 60 seconds.");
+                await sleep(60000);
+            }
         }
-        if (articleData.cerebras?.rating > 2) {
+        if (articleData.cerebras?.rating >= 2) {
             playerNews.push(articleData);
         }
     }

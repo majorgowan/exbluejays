@@ -2,11 +2,11 @@
     <ul>
         <% for (newsItem of news) { %>
             <li class="exjaynewsitem <%= newsItem.categoryClass %>">
-                <%= newsItem.shortDate %>: &emsp;
+                <span class="exjaynewsdate"><%= newsItem.shortDate %>:</span>
                 <span class="exjaynewstitle">
                 <a title="<%= newsItem.title %>" target="_blank" href="<%= newsItem.url %>"><%= newsItem.shortTitle %></a>
                 </span>
-                &emsp;<%= newsItem.playerName %>
+                <span class="exjaynewsname"><%= newsItem.playerName %></span>
             </li>
         <% } %>
     </ul>

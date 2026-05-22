@@ -67,7 +67,15 @@ p {
 }
 .exjaynewstitle {
     display: inline-block;
-    width: 400px;
+    width: 450px;
+}
+.exjaynewsname {
+    display: inline-block;
+    width: 150px;
+}
+.exjaynewsdate {
+    display: inline-block;
+    width: 80px;
 }
 .categorygreatgame {
     color: navy;

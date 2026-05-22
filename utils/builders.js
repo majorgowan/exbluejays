@@ -174,7 +174,7 @@ async function buildNews(dbInstance, endDate, threshold=7) {
         newsItem.shortDate = (new Date(newsItem.publishedDate)).toLocaleDateString('en-US',
             { month: 'long', day: 'numeric' }
         );
-        newsItem.shortTitle = (newsItem.title.length > 50 ? newsItem.title.substring(0, 50) + "..." : newsItem.title);
+        newsItem.shortTitle = (newsItem.title.length > 45 ? newsItem.title.substring(0, 45) + "..." : newsItem.title);
     }
 
     // sort by date

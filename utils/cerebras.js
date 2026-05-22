@@ -29,6 +29,7 @@ async function askCerebras(content, response_format=null, temperature=0.2, max_c
         } else {
             console.error("Unexpected error:", error);
         }
+        return {"error": error};
     }
 }
 
@@ -125,7 +126,7 @@ async function rateNews(content, player) {
     - NON-BASEBALL
     - OTHER
     
-    Please rate the newsworthiness on a scale of 0 to 10 using the examples below as a reference:
+    Please rate the newsworthiness on a scale of 0 to 10 using the EXAMPLES below as a reference:
     
     - ${player.fullName} hit a home run and had multiple RBI (rating 7 / GREAT GAME)
     - ${player.fullName} had a quality start (rating 6 / GREAT GAME)
