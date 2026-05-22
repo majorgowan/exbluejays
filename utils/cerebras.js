@@ -5,14 +5,14 @@ const client = new Cerebras({
     apiKey: process.env["CEREBRAS_API_KEY"],
 });
 
-async function askCerebras(content, max_completion_tokens=1024, temperature=0.2) {
+async function askCerebras(content, response_format=null, temperature=0.2, max_completion_tokens=1024) {
     try {
-
         const response = await client.chat.completions.create({
             model: process.env["CEREBRAS_MODEL"],
             max_completion_tokens: max_completion_tokens,
             temperature: temperature,
             stream: false,
+            response_format: response_format,
             messages: [
                 {
                     role: "user",
@@ -31,6 +31,7 @@ async function askCerebras(content, max_completion_tokens=1024, temperature=0.2)
         }
     }
 }
+
 
 function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
                      schedule, notes=null, news=null) {
@@ -94,4 +95,71 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
 }
 
 
-module.exports = { askCerebras, buildPrompt };
+async function rateNews(content, player) {
+    // evaluate the submitted news
+    let prompt = `Consider the news article text below.
+    
+    ------------------
+    
+    ${content}
+    
+    ------------------
+      
+    Please assess whether or not it is newsworthy information about player ${player.fullName}.
+    
+    Categorize the information as one of the following:
+    
+    - GAME PERFORMANCE
+    - AWARD
+    - INJURY
+    - CAREER CHANGE
+    - NON-BASEBALL RELATED
+    
+    Please rate the newsworthiness on a scale of 0 to 10 using the examples below as a reference:
+    
+    - ${player.fullName} had an excellent performance in a game such as a quality start or a home run and multiple RBI (rating 6)
+    - ${player.fullName} had a notable performance in a game (rating 4)
+    - ${player.fullName} went on or came of the injured list (rating 5)
+    - ${player.fullName} won an award such as player of the week or player of the month (rating 8)
+    - ${player.fullName} was named to all-star team (rating 8)
+    - ${player.fullName} won an end-of-season award (rating 10)
+    - ${player.fullName} announced his retirement (rating 10)
+    - ${player.fullName} is changing teams in a trade, or signed as a free agent with a new team, or was released by his team (rating 8)
+    - ${player.fullName} was hired in a coaching or managerial role (rating 8)
+    - ${player.fullName} was mentioned in a game summary but not in a starring role (rating 2)
+    - ${player.fullName} discussing personal experiences or struggles (rating 2)
+    - ${player.fullName} not mentioned by name (rating 0)
+    
+    DO NOT BE LIBERAL WITH RATINGS OF 5 OR HIGHER.  Save them for truly noteworthy news ABOUT ${player.fullName}.
+    
+    BE CAREFUL NOT TO CONFUSE PLAYERS WITH THE SAME FIRST NAME OR SAME LAST NAME.  Only consider news about ${player.fullName}.
+    
+    Give a short explanation for your newsworthiness rating.
+    
+    Finally, please summarize the information in the article pertaining to ${player.fullName} in one or two detailed sentences.`;
+
+    const response_format = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "news_rating",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "category": {"type": "string"},
+                    "rating": {"type": "number"},
+                    "rating_explanation": {"type": "string"},
+                    "summary": {"type": "string"}
+                },
+                "required": ["category", "rating", "rating_explanation", "summary"],
+                "additionalProperties": false
+            },
+            "strict": true
+        }
+    };
+
+    const response = await askCerebras(prompt, response_format);
+    return response;
+}
+
+
+module.exports = { askCerebras, buildPrompt, rateNews };

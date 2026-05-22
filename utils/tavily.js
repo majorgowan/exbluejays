@@ -13,9 +13,8 @@ async function askTavily(query, startDate, endDate, domains) {
             maxResults: 3,
             startDate: startDate,
             endDate: endDate,
-            includeRawContent: "text",
             includeDomains: domains,
-            chunksPerSource: 1
+            chunksPerSource: 3
         });
 
         return response;
@@ -26,9 +25,9 @@ async function askTavily(query, startDate, endDate, domains) {
 }
 
 
-function buildQuery(name) {
+function buildQuery(player) {
     // generate the query for asking tavily
-    return `Find the most interesting career news about ${name}.`;
+    return `Find the latest baseball news about ${player.fullName} who plays ${player.position} for the ${player.latest_team}`;
 }
 
 
