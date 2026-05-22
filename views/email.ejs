@@ -14,27 +14,38 @@
     Check out the <a href="https://exbluejays.ca/?endDate=<%= endDate %>">full report</a>.
 </p>
 
+<h3 class="exjayheading">
+    Stats Corner
+</h3>
+
 <h4 class="exjayheading">
     Your top Ex Bats of the week
 </h4>
-<%- include("partials/hitters.ejs", { hitters: hitters_week }) %>
+<%- include("partials/hitters.ejs", { hitters: hitters_week, table_class: "showtable" }) %>
 
 <h4 class="exjayheading">
     ... and of the season so far
 </h4>
-<%- include("partials/hitters.ejs", { hitters: hitters_ytd }) %>
+<%- include("partials/hitters.ejs", { hitters: hitters_ytd, table_class: "showtable" }) %>
 
-<BR><BR>
+<BR>
 
 <h4 class="exjayheading">
     Your top Ex Arms of the week
 </h4>
-<%- include("partials/pitchers.ejs", { pitchers: pitchers_week }) %>
+<%- include("partials/pitchers.ejs", { pitchers: pitchers_week, table_class: "showtable" }) %>
 
 <h4 class="exjayheading">
     ... and of the season so far
 </h4>
-<%- include("partials/pitchers.ejs", { pitchers: pitchers_ytd }) %>
+<%- include("partials/pitchers.ejs", { pitchers: pitchers_ytd, table_class: "showtable" }) %>
+
+<% if (locals.news && locals.news.length > 0) { %>
+    <h3 class="exjayheading">
+        News Roundup
+    </h3>
+    <%- include("partials/news.ejs") %>
+<% } %>
 
 <% if (locals.schedule) { %>
     <h3 class="exjayheading">

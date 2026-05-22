@@ -2,7 +2,7 @@ require("dotenv").config();
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { askTavily, buildQuery } = require("../utils/tavily");
 const { rateNews } = require("../utils/cerebras");
-const { lastSunday } = require("../utils/utils");
+const { lastSunday, generateRandomString } = require("../utils/utils");
 const argv = require('yargs')
     .option("endDate", {
         type: "string",
@@ -53,7 +53,8 @@ async function processPlayer(player) {
             "title": item.title,
             "url": item.url,
             "publishedDate": item.publishedDate,
-            "relevanceScore": item.score
+            "relevanceScore": item.score,
+            "_id": generateRandomString(10)
         };
         if (verbose) console.log(articleData);
         if (item.content && item?.score > 0.3) {

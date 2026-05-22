@@ -2,7 +2,7 @@ require("dotenv").config();
 const { createInterface } = require("node:readline/promises");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { buildPrompt, askCerebras } = require("../utils/cerebras");
-const { buildTables, buildSeries } = require("../utils/builders");
+const { buildTables, buildSeries, buildNews } = require("../utils/builders");
 const { lastSunday } = require("../utils/utils");
 const argv = require('yargs')
     .option("endDate", {
@@ -77,8 +77,11 @@ async function makeSummary() {
         {"_id": 0, "notes": 1}
     );
 
+    // get news
+    const news = await buildNews(dbInstance, endDate, 6);
+
     const prompt = buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
-                               schedule, report_notes.notes);
+                               schedule, report_notes.notes, news);
     if (verbose) {
         console.log("Prompt: \n");
         console.log(prompt);

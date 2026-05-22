@@ -46,6 +46,14 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
 
     const notes_string = (notes?.length > 0 ? `\nHere are some team change notes:\n ${notes.join("\n")}` : "There are no team change notes.");
 
+    let news_string = "";
+    if (news?.length > 0) {
+        news_string += "Here is a survey of news about some ex-Blue Jays that might inform your summary:";
+        for (newsItem of news) {
+            news_string += `\n- ${newsItem.shortDate}: ${newsItem.summary}`;
+        }
+    }
+
     let prompt = `Your name is Mister Ex and you are an old timey sports reporter whose beat is former Toronto Blue Jays.
     
     Here are statistics for some former Toronto Blue Jays players for the last week.  The
@@ -70,9 +78,10 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     
     ${notes_string}
     
-    In three or four sentences, please summarize the outstanding performances from the past week.
+    In three to five sentences, please summarize the outstanding performances from the past week.  
+    Use past tense to describe the past week.
     
-    If there are any team-change notes, please mention them.
+    ${news_string}
     
     Emphasize players with higher number of career games played as a Blue Jay (JGP).
     
@@ -89,9 +98,9 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     
     Please be careful not to invent statistics or misread the tables.
     
-    Try to work in the year the players last played for Toronto and how they are fondly remembered.`
+    Try to work in the year the players last played for Toronto and how they are fondly remembered.`;
 
-    return prompt
+    return prompt;
 }
 
 
@@ -109,26 +118,31 @@ async function rateNews(content, player) {
     
     Categorize the information as one of the following:
     
-    - GAME PERFORMANCE
+    - GREAT GAME
     - AWARD
     - INJURY
-    - CAREER CHANGE
-    - NON-BASEBALL RELATED
+    - CAREER
+    - NON-BASEBALL
+    - OTHER
     
     Please rate the newsworthiness on a scale of 0 to 10 using the examples below as a reference:
     
-    - ${player.fullName} had an excellent performance in a game such as a quality start or a home run and multiple RBI (rating 6)
-    - ${player.fullName} had a notable performance in a game (rating 4)
-    - ${player.fullName} went on or came of the injured list (rating 5)
-    - ${player.fullName} won an award such as player of the week or player of the month (rating 8)
-    - ${player.fullName} was named to all-star team (rating 8)
-    - ${player.fullName} won an end-of-season award (rating 10)
-    - ${player.fullName} announced his retirement (rating 10)
-    - ${player.fullName} is changing teams in a trade, or signed as a free agent with a new team, or was released by his team (rating 8)
-    - ${player.fullName} was hired in a coaching or managerial role (rating 8)
-    - ${player.fullName} was mentioned in a game summary but not in a starring role (rating 2)
-    - ${player.fullName} discussing personal experiences or struggles (rating 2)
-    - ${player.fullName} not mentioned by name (rating 0)
+    - ${player.fullName} hit a home run and had multiple RBI (rating 7 / GREAT GAME)
+    - ${player.fullName} had a quality start (rating 6 / GREAT GAME)
+    - ${player.fullName} had the game-winning hit (rating 5 / GREAT GAME)
+    - ${player.fullName} had a notable performance in a game (rating 4 / GREAT GAME)
+    - ${player.fullName} went on or came of the injured list (rating 5 / INJURY)
+    - ${player.fullName} won an award such as player of the week or player of the month (rating 8 / AWARD)
+    - ${player.fullName} was named to all-star team (rating 8 / AWARD)
+    - ${player.fullName} won an end-of-season award (rating 10 / AWARD)
+    - ${player.fullName} announced his retirement (rating 10 / CAREER)
+    - ${player.fullName} was traded or signed as a free agent with a new team (rating 8 / CAREER)
+    - ${player.fullName} was released by his team (rating 6 / CAREER)
+    - ${player.fullName} was hired in a coaching or managerial role (rating 8 / NON-BASEBALL)
+    - ${player.fullName} was mentioned in a game summary but not in a starring role (rating 2 / GREAT GAME)
+    - ${player.fullName} discussing personal experiences or struggles (rating 2 / NON-BASEBALL)
+    - ${player.fullName} not mentioned by name (rating 0 / OTHER)
+    - ${player.fullName} was mentioned in a rumoured or speculated trade (rating 1 / CAREER)
     
     DO NOT BE LIBERAL WITH RATINGS OF 5 OR HIGHER.  Save them for truly noteworthy news ABOUT ${player.fullName}.
     
@@ -136,7 +150,8 @@ async function rateNews(content, player) {
     
     Give a short explanation for your newsworthiness rating.
     
-    Finally, please summarize the information in the article pertaining to ${player.fullName} in one or two detailed sentences.`;
+    Finally, please summarize the information in the article pertaining to ${player.fullName} in one or two detailed sentences.
+    If the article category is GREAT GAME, please mention the opponent and the result of the game.`;
 
     const response_format = {
         "type": "json_schema",
@@ -157,8 +172,7 @@ async function rateNews(content, player) {
         }
     };
 
-    const response = await askCerebras(prompt, response_format);
-    return response;
+    return await askCerebras(prompt, response_format);
 }
 
 

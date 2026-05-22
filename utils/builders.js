@@ -149,4 +149,41 @@ async function buildSeries(dbInstance, endDate) {
 }
 
 
-module.exports = { buildTables, buildSeries, buildSummary };
+async function buildNews(dbInstance, endDate, threshold=7) {
+    // retrieve schedule from the report
+    const newsRoundup = await dbInstance.collection("news").find(
+        {
+            "endDate": endDate,
+            "cerebras.rating": {"$gte": threshold}
+        },
+        {
+            "projection": {
+                "title": 1,
+                "url": 1,
+                "playerName": 1,
+                "publishedDate": 1,
+                "category": "$cerebras.category",
+                "summary": "$cerebras.summary"
+            }
+        }
+    ).toArray();
+
+    // add category-based class name and short date
+    for (const newsItem of newsRoundup) {
+        newsItem.categoryClass = "category" + newsItem.category.toLowerCase().replace(/ /g, "");
+        newsItem.shortDate = (new Date(newsItem.publishedDate)).toLocaleDateString('en-US',
+            { month: 'long', day: 'numeric' }
+        );
+        newsItem.shortTitle = (newsItem.title.length > 50 ? newsItem.title.substring(0, 50) + "..." : newsItem.title);
+    }
+
+    // sort by date
+    newsRoundup.sort((itemA, itemB) => {
+       return new Date(itemA.publishedDate) - new Date(itemB.publishedDate);
+    });
+
+    return newsRoundup;
+}
+
+
+module.exports = { buildTables, buildSeries, buildSummary, buildNews };

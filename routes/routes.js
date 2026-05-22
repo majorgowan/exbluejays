@@ -1,6 +1,6 @@
 const express = require('express');
 const { connectToDatabase } = require("../utils/db");
-const { buildTables, buildSeries, buildSummary } = require("../utils/builders");
+const { buildTables, buildSeries, buildSummary, buildNews } = require("../utils/builders");
 const { teamAbbMap} = require("../utils/mlb");
 
 const router = express.Router();
@@ -27,25 +27,6 @@ router.get("/", async (req, res) => {
         });
 });
 
-// app.get('/data', (req, res) => {
-//     // serve filtered or unfiltered data
-//     const allOrSome = req.query.all;
-//     console.log(allOrSome);
-//     if (allOrSome === "all") {
-//         res.json(playersData);
-//     } else {
-//         // current or ex Blue Jays
-//         const filteredList = filterPlayers(allOrSome);
-//         console.log(`Returning ${Object.entries(filteredList).length} ${allOrSome} Blue Jays.`);
-//         res.json(filteredList);
-//     }
-// });
-
-// app.get('/roster', (req, res) => {
-//     const players = Object.values(filterPlayers("ex"));
-//     console.log(`Returning ${players.length} ex Blue Jays.`);
-//     res.render('roster', {players: players});
-// });
 
 router.get("/report", async (req, res) => {
     let endDate = req.query.endDate;
@@ -76,6 +57,7 @@ router.get("/report", async (req, res) => {
 
     const schedule = await buildSeries(dbInstance, endDate);
     const summary = await buildSummary(dbInstance, endDate);
+    const news = await buildNews(dbInstance, endDate, 6);
 
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
         {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
@@ -95,6 +77,7 @@ router.get("/report", async (req, res) => {
             pitchers_ytd: pitchers_ytd,
             schedule: schedule,
             summary: summary,
+            news: news,
             players_url: process.env.PLAYERS_URL
         });
 });
@@ -105,20 +88,5 @@ router.get("/db", async (req, res) => {
     res.json(playersArray);
 });
 
-// app.post('/populate', async (req, res) => {
-//     const dbInstance = await connectToDatabase("exbluejays");
-//     const how = req.body.how;
-//     const players = filterPlayers(how);
-//     const documentsToInsert = Object.entries(players).map(([id, player]) => {
-//         return {"_id": id, ...player};
-//     });
-//     const playersCollection = dbInstance.collection("players");
-//     const result = await playersCollection.insertMany(documentsToInsert,
-//         {"ordered": false});
-//     res.json({
-//         "inserted": result.insertedCount,
-//         "totalDocs": await playersCollection.countDocuments()
-//     });
-// });
 
 module.exports = router;

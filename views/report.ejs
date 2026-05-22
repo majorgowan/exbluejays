@@ -54,6 +54,13 @@
 <%- include("partials/pitchers.ejs", { pitchers: pitchers_week, table_class: "showtable" } ) %>
 <%- include("partials/pitchers.ejs", { pitchers: pitchers_ytd, table_class: "hidetable" } ) %>
 
+<% if (locals.news && locals.news.length > 0) { %>
+    <h3 class="exjayheading">
+        News Roundup
+    </h3>
+    <%- include("partials/news.ejs") %>
+<% } %>
+
 <% if (locals.schedule) { %>
     <h3 class="exjayheading">
         Blue Jays opponents this week

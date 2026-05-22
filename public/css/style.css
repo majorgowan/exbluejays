@@ -58,6 +58,27 @@ p {
     content: ""; /* or "›", "→", "•", etc. */
 }
 
+.exjaynews {
+    line-height: 1.4;
+}
+.exjaynewsitem a:link, a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+.exjaynewstitle {
+    display: inline-block;
+    width: 400px;
+}
+.categorygreatgame {
+    color: navy;
+}
+.categorycareer {
+    color: darkgreen;
+}
+.categoryaward {
+    color: darkgoldenrod;
+}
+
 .dateselectdiv {
     display: flex;
     width: 85%;
