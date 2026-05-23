@@ -13,6 +13,11 @@ const argv = require('yargs')
         default: false,
         describe: "do not update mongo"
     })
+    .option("cleanup", {
+        type: "boolean",
+        default: false,
+        describe: "remove low-rated articles"
+    })
     .option("verbose", {
         alias: "v",
         type: "boolean",
@@ -22,6 +27,7 @@ const argv = require('yargs')
 
 const verbose = argv.verbose;
 const testing = argv.testing;
+const cleanup = argv.cleanup;
 
 let endDate = argv.endDate;
 if (endDate === undefined) {
@@ -39,7 +45,7 @@ const domains = [
 ];
 
 
-async function processPlayer(player) {
+async function processPlayer(player, newsCollection) {
     // TODO: wrap tavily and cerebras calls in try/catch to handle errors gracefully
     const query = buildQuery(player);
     if (verbose) console.log("\n\nQUERY:", query);
@@ -68,16 +74,49 @@ async function processPlayer(player) {
                 await sleep(60000);
             }
         }
-        if (articleData.cerebras?.rating >= 2) {
-            playerNews.push(articleData);
+        playerNews.push(articleData);
+    }
+    if (newsCollection) {
+        // push the news to mongo
+        const result = await newsCollection.insertMany(playerNews);
+        if (result.acknowledged) {
+            if (verbose) console.log(result);
+        }
+        return result;
+    } else {
+        return playerNews;
+    }
+}
+
+
+async function processGroup(playerCursor, newsCollection) {
+    let counter = 1;
+    for await (const player of playerCursor) {
+        console.log(player.fullName);
+        // check if player news is already in database
+        const cursor = newsCollection.find(
+            {
+                "player_id": player._id,
+                "endDate": endDate,
+            }
+        );
+        if (await cursor.hasNext()) {
+            console.log(`${player.fullName} news already gathered, skipping...`);
+        } else {
+            // pause to be nice every 5
+            if (counter % 5 === 0) await sleep(2000);
+            counter++;
+            const result = await processPlayer(player, newsCollection);
+            if (testing) console.log(result);
         }
     }
-    return playerNews;
 }
+
 
 async function fetchNews() {
 
     const dbInstance = await connectToDatabase("exbluejays");
+    const newsCollection = dbInstance.collection("news");
 
     // get names of active ex-Bats with at least
     // N games as a blue jay and ex-Arms with at least M
@@ -102,6 +141,7 @@ async function fetchNews() {
             "limit": 30,
         }
     );
+    await processGroup(exbats, newsCollection);
 
     const exarms = await dbInstance.collection("players").find(
         {
@@ -123,24 +163,20 @@ async function fetchNews() {
             "limit": 30,
         }
     );
+    await processGroup(exarms, newsCollection);
 
-    const relevantNews = [];
-    for await (const player of exbats) {
-        const playerNews = await processPlayer(player);
-        relevantNews.push(...playerNews);
-    }
-    for await (const player of exarms) {
-        const playerNews = await processPlayer(player);
-        relevantNews.push(...playerNews);
-    }
-
-    if (!testing) {
-        // update reports collection
-        const newsCollection = dbInstance.collection("news");
-        const result = await newsCollection.insertMany(relevantNews);
-        if (result.acknowledged) {
-            if (verbose) console.log(result);
-        }
+    if (cleanup) {
+        // delete articles with very low relevanceScore
+        console.log("cleaning up...");
+        const result = await newsCollection.deleteMany(
+            {
+                "endDate": endDate,
+                "relevanceScore": {
+                    "$lt": 0.1
+                }
+            }
+        );
+        console.log(result);
     }
 
     await closeConnection();

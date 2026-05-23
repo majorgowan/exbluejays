@@ -2,13 +2,13 @@ const Cerebras = require("@cerebras/cerebras_cloud_sdk");
 const jsonToMarkdown = require("json-to-markdown-table");
 
 const client = new Cerebras({
-    apiKey: process.env["CEREBRAS_API_KEY"],
+    apiKey: process.env.CEREBRAS_API_KEY
 });
 
 async function askCerebras(content, response_format=null, temperature=0.2, max_completion_tokens=1024) {
     try {
         const response = await client.chat.completions.create({
-            model: process.env["CEREBRAS_MODEL"],
+            model: process.env.CEREBRAS_MODEL,
             max_completion_tokens: max_completion_tokens,
             temperature: temperature,
             stream: false,
