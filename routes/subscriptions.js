@@ -2,16 +2,17 @@ const express = require('express');
 const { connectToDatabase } = require("../utils/db");
 const { renderEmail, sendEmail } = require("../utils/email");
 const { generateRandomString } = require("../utils/utils");
-const { teamAbbMap } = require("../utils/mlb");
 
 const router = express.Router();
 
 
 router.get("/subscribe", (req, res) => {
+    const emailAddress = req.query.email || "";
     const csrfToken = req.csrfToken();
     res.render("subscribe",
         {
             "method": "get",
+            "email": emailAddress,
             "csrfToken": csrfToken
         });
 });
@@ -49,12 +50,12 @@ router.post("/subscribe", async (req, res) => {
                 "upsert": true
             });
         console.log(result);
-        message = `${emailAddress} is now subscribed pending confirmation.  Check your inbox bzw. spam folder for a confirmation request.`
+        message = `${emailAddress} is now subscribed pending confirmation.<BR><BR>Check your inbox bzw. spam folder for a confirmation request.`
 
         // send confirmation email
-        const confirmationUrl = `https://exbluejays.ca/confirm?email_address=${emailAddress}&token=${token}`;
+        const confirmationUrl = `https://exbluejays.ca/confirm?email=${emailAddress}&token=${token}`;
         const locals = {
-            "email_address": emailAddress,
+            "email": emailAddress,
             "token_expiry": expiry.toISOString(),
             "confirmation_url": confirmationUrl,
             "business_address": process.env.BUSINESS_ADDRESS
@@ -64,7 +65,8 @@ router.post("/subscribe", async (req, res) => {
             "to": emailAddress,
             "from": process.env.EMAIL_SENDER_ADDRESS,
             "subject": "Confirm your email for Ex-Blue Jays report",
-            "html": html
+            "html": html,
+            "h:Reply-To": process.env.EMAIL_REPLYTO_ADDRESS
         }
         await sendEmail(emailData);
     }
@@ -77,7 +79,7 @@ router.post("/subscribe", async (req, res) => {
 
 
 router.get("/unsubscribe", (req, res) => {
-    const emailAddress = req.query.emailAddress;
+    const emailAddress = req.query.email;
     const csrfToken = req.csrfToken();
     res.render("unsubscribe",
         {
@@ -122,7 +124,7 @@ router.post("/unsubscribe", async (req, res) => {
 router.get("/confirm", async (req, res) => {
     let message;
     let retry = false;
-    const emailAddress = req.query.email_address;
+    const emailAddress = req.query.email;
     const confirmationToken = req.query.token;
     const dbInstance = await connectToDatabase("exbluejays");
     const subscribers = dbInstance.collection("subscribers");
@@ -131,14 +133,23 @@ router.get("/confirm", async (req, res) => {
             "email": emailAddress,
         }
     );
-    if (findMatch) {
+    if (!findMatch) {
+        message = "Confirmation unsuccessful.  Unrecognized email address.";
+        retry = true;
+    } else {
         const now = new Date();
         console.log(findMatch);
         if (findMatch.confirmed) {
             // address is already confirmed
             message = `${emailAddress} is already confirmed.`;
         } else {
-            if (findMatch.token === confirmationToken && now < findMatch.token_expiry) {
+            if (findMatch.token !== confirmationToken) {
+                message = "Confirmation unsuccessful.  Incorrect token.";
+                retry = true;
+            } else if (now < findMatch.token_expiry) {
+                message = "Confirmation unsuccessful.  Token expired.";
+                retry = true;
+            } else {
                 // confirmation successful
                 message = `${emailAddress} is now confirmed.  Remember to check your spam folder every Monday.`;
                 // update the database
@@ -158,16 +169,13 @@ router.get("/confirm", async (req, res) => {
                     }
                 )
                 console.log(result);
-            } else {
-                message = "Confirmation unsuccessful.";
-                retry = true;
             }
         }
     }
     res.render("confirm", {
         "method": "get",
         "message": message,
-        "emailAddress": emailAddress,
+        "email": emailAddress,
         "retry": retry,
     });
 });

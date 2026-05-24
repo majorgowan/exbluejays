@@ -62,7 +62,7 @@ p {
     color: darkred;
     font-size: medium;
 }
-.exjaynews td {
+.exjaynews td, th {
     padding-left: 10px;
     padding-top: 3px;
 }
@@ -71,6 +71,9 @@ p {
     text-decoration: none;
     font-family: "Times New Roman", serif;
     font-variant-caps: small-caps;
+}
+.left-th {
+    text-align: left;
 }
 .categorygreatgame {
     color: navy;

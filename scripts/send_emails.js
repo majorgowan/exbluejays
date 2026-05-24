@@ -72,7 +72,7 @@ async function sendEmails() {
     const news = await buildNews(dbInstance, endDate, 6);
 
     // URL to unsubscribe from EBJR
-    const unsubscribe_url = `https://exbluejays.ca/unsubscribe?emailAddress=${destinationEmail}`;
+    const unsubscribe_url = `https://exbluejays.ca/unsubscribe?email=${destinationEmail}`;
 
     const locals = {
         "email_address": destinationEmail,
@@ -110,6 +110,7 @@ async function sendEmails() {
             "from": senderEmail,
             "subject": `Ex-Blue Jays report for ${endDateString}`,
             "html": html,
+            "h:Reply-To": process.env.EMAIL_REPLYTO_ADDRESS,
             "h:List-Unsubscribe": unsubscribe_url,
             "h:List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
         }
