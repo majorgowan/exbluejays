@@ -165,8 +165,6 @@ async function updateStats() {
                             }
                         );
                         if (verbose) console.log(`. . . modified ${result.modifiedCount}`);
-                        if (verbose) console.log(result);
-                        if (verbose) console.log(latestTeam, player.latest_team);
                     }
                 } else {
                     if (verbose) console.log(". . . no stats");
@@ -205,7 +203,7 @@ async function updateStats() {
     }
 
     if (verbose) {
-        console.log("team changes");
+        console.log("team changes:");
         console.log(teamChanges);
     }
     // apply team changes to players collection
@@ -220,7 +218,7 @@ async function updateStats() {
                 }
             }
         )
-        if (verbose) console.log(result);
+        if (verbose) console.log(`applied team change: modified ${result.modifiedCount}`);
     }
 
     // close MongoDB connection

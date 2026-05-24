@@ -15,6 +15,7 @@ const argv = require('yargs')
         describe: "do not update mongo"
     })
     .option("yes", {
+        alias: "y",
         type: "boolean",
         default: false,
         describe: "do not ask for keyboard confirmation before committing to mongo"

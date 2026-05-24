@@ -1,5 +1,6 @@
 require("dotenv").config();
-const {connectToDatabase, closeConnection} = require("../utils/db");
+const { connectToDatabase, closeConnection } = require("../utils/db");
+const { sleep } = require("../utils/utils");
 const argv = require("yargs")
     .option("allPlayers", {
         type: "string",
@@ -124,7 +125,7 @@ async function updateStatus() {
             }
             // pause to be nice
             if (counter % 10 === 0) {
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Pause for 2 second
+                await sleep(2000);
             }
         }
     }
@@ -190,7 +191,9 @@ async function updateStatus() {
                     {"_id": player._id},
                     {"$set": updateInfo},
                 );
-                if (verbose) console.log(updateResult);
+                if (verbose && updateResult.modifiedCount > 0) {
+                    console.log(`... modified ${updateResult.modifiedCount}`);
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -198,7 +201,7 @@ async function updateStatus() {
         }
         // pause to be nice
         if (counter % 10 === 0) {
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Pause for 2 seconds
+            await sleep(2000);
         }
     }
 

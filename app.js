@@ -4,7 +4,7 @@ const csrf = require("tiny-csrf");
 const cookieParser = require('cookie-parser');
 const routes = require("./routes/routes");
 const subscriptionRoutes = require("./routes/subscriptions");
-const { handleCsrfError, handleMongoError } = require("./routes/errors");
+const { handleGlobalError, handleCsrfError, handleMongoError } = require("./routes/errors");
 
 const app = express();
 
@@ -30,6 +30,7 @@ app.use("/", subscriptionRoutes);
 // Error handlers
 app.use(handleCsrfError);
 app.use(handleMongoError);
+app.use(handleGlobalError);
 
 // Start server
 app.listen(process.env.PORT || 3000, () => {

@@ -5,6 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "weekly_update": "bash bin/weekly_update.sh",
+    "mister_ex_report": "node scripts/make_summary.js --verbose",
+    "send_emails": "node scripts/send_emails.js --verbose",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mark Fruman",
