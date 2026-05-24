@@ -5,7 +5,7 @@
 
 <body>
 <div class="exjayform">
-    <% if (method === "get") { %>
+    <% if (retry) { %>
         <h4 class="exjayheading">Subscribe to the Ex-Blue Jay Report</h4><BR>
         <form method="POST" action="/subscribe">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -18,9 +18,6 @@
         <p><%= message %></p>
     <% } %>
 </div>
-<p>
-    By subscribing you are consenting to the <a href="/privacy">privacy policy</a>. You may unsubscribe at any time.
-</p>
 </body>
 
 </html>

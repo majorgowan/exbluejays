@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("partials/header.ejs") %>
+
+<body>
+
+<p>
+    This email was sent to <%= email_address %>.
+</p>
+
+<p>
+    Please <a href="<%= confirmation_url %>">click here</a> to confirm your subscription.<BR>
+    The link will expire at <%= token_expiry %>.
+</p>
+
+</body>
+
+<footer>
+<p>
+    Copyright (2026) by Mark Fruman<BR>
+    <%= business_address %><BR>
+    <a href="https://exbluejays.ca/privacy">Privacy Policy</a>
+</p>
+</footer>
+
+</html>

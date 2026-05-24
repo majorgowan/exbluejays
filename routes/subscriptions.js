@@ -1,7 +1,11 @@
 const express = require('express');
-const {connectToDatabase} = require("../utils/db");
+const { connectToDatabase } = require("../utils/db");
+const { renderEmail, sendEmail } = require("../utils/email");
+const { generateRandomString } = require("../utils/utils");
+const { teamAbbMap } = require("../utils/mlb");
 
 const router = express.Router();
+
 
 router.get("/subscribe", (req, res) => {
     const csrfToken = req.csrfToken();
@@ -11,6 +15,7 @@ router.get("/subscribe", (req, res) => {
             "csrfToken": csrfToken
         });
 });
+
 
 router.post("/subscribe", async (req, res) => {
     let message;
@@ -22,14 +27,19 @@ router.post("/subscribe", async (req, res) => {
     if (existingMatches.length > 0 && existingMatches[0].active) {
         message = `${emailAddress} is already subscribed.`;
     } else {
+        const token = generateRandomString(32);
+        const expiry = new Date();
+        expiry.setDate(expiry.getDate() + 1);
         const result = await subscribers.updateOne(
             {
                 "email": emailAddress
             },
             {
                 "$set": {
-                    "activated": new Date(),
-                    "active": true
+                    "active": false,
+                    "confirmed": false,
+                    "token": token,
+                    "token_expiry": expiry,
                 },
                 "$unset": {
                     "deactivated": ""
@@ -38,7 +48,25 @@ router.post("/subscribe", async (req, res) => {
             {
                 "upsert": true
             });
-        message = `${emailAddress} is now subscribed.`
+        console.log(result);
+        message = `${emailAddress} is now subscribed pending confirmation.  Check your inbox bzw. spam folder for a confirmation request.`
+
+        // send confirmation email
+        const confirmationUrl = `https://exbluejays.ca/confirm?email_address=${emailAddress}&token=${token}`;
+        const locals = {
+            "email_address": emailAddress,
+            "token_expiry": expiry.toISOString(),
+            "confirmation_url": confirmationUrl,
+            "business_address": process.env.BUSINESS_ADDRESS
+        }
+        const html = await renderEmail("confirmation_email", locals);
+        const emailData = {
+            "to": emailAddress,
+            "from": process.env.EMAIL_SENDER_ADDRESS,
+            "subject": "Confirm your email for Ex-Blue Jays report",
+            "html": html
+        }
+        await sendEmail(emailData);
     }
 
     res.render("subscribe", {
@@ -46,6 +74,7 @@ router.post("/subscribe", async (req, res) => {
         "message": message
     });
 });
+
 
 router.get("/unsubscribe", (req, res) => {
     const emailAddress = req.query.emailAddress;
@@ -57,6 +86,7 @@ router.get("/unsubscribe", (req, res) => {
             "csrfToken": csrfToken
         });
 });
+
 
 router.post("/unsubscribe", async (req, res) => {
     let message;
@@ -78,6 +108,7 @@ router.post("/unsubscribe", async (req, res) => {
                     "active": false
                 }
             });
+        console.log(result);
         message = `${emailAddress} is now unsubscribed.  You are now an ex-Ex-Blue Jays Report subscriber!`
     }
 
@@ -86,6 +117,61 @@ router.post("/unsubscribe", async (req, res) => {
         "message": message
     });
 });
+
+
+router.get("/confirm", async (req, res) => {
+    let message;
+    let retry = false;
+    const emailAddress = req.query.email_address;
+    const confirmationToken = req.query.token;
+    const dbInstance = await connectToDatabase("exbluejays");
+    const subscribers = dbInstance.collection("subscribers");
+    const findMatch = await subscribers.findOne(
+        {
+            "email": emailAddress,
+        }
+    );
+    if (findMatch) {
+        const now = new Date();
+        console.log(findMatch);
+        if (findMatch.confirmed) {
+            // address is already confirmed
+            message = `${emailAddress} is already confirmed.`;
+        } else {
+            if (findMatch.token === confirmationToken && now < findMatch.token_expiry) {
+                // confirmation successful
+                message = `${emailAddress} is now confirmed.  Remember to check your spam folder every Monday.`;
+                // update the database
+                const result = await subscribers.updateOne(
+                    {
+                        "email": emailAddress
+                    },
+                    {
+                        "$set": {
+                            "confirmed": true,
+                            "activated": new Date(),
+                            "active": true
+                        },
+                        "$unset": {
+                            "deactivated": ""
+                        }
+                    }
+                )
+                console.log(result);
+            } else {
+                message = "Confirmation unsuccessful.";
+                retry = true;
+            }
+        }
+    }
+    res.render("confirm", {
+        "method": "get",
+        "message": message,
+        "emailAddress": emailAddress,
+        "retry": retry,
+    });
+});
+
 
 router.get("/privacy", (req, res) => {
     res.render("privacy");
