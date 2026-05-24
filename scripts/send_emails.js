@@ -2,7 +2,7 @@ require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const { connectToDatabase, closeConnection } = require("../utils/db");
-const Email = require('email-templates');
+const { renderEmail, sendEmail } = require("../utils/email");
 const { buildTables, buildSeries, buildSummary, buildNews} = require("../utils/builders");
 const { teamAbbMap } = require("../utils/mlb");
 const argv = require('yargs')
@@ -22,11 +22,6 @@ const argv = require('yargs')
         describe: "destination email address"
     }).argv;
 
-const mailgun = require('mailgun-js')({
-    apiKey: process.env.MAILGUN_API_KEY,
-    domain: process.env.MAILGUN_DOMAIN
-});
-
 const renderOnly = argv.render;
 const destinationEmail = argv.destination;
 const endDate = argv.endDate;
@@ -38,23 +33,6 @@ const endDateString = new Date(endDate).toLocaleDateString('en-US',
 );
 
 async function sendEmails() {
-
-    const email = new Email({
-        "views": {
-            "root": "views/",
-            "options": {
-                "extension": "ejs"
-            }
-        },
-        "juice": true,
-        "juiceResources": {
-            "applyStyleTags": true,
-            "webResources": {
-                "relativeTo": path.resolve("./public")
-            }
-        },
-        "send": false
-    });
 
     const dbInstance = await connectToDatabase("exbluejays");
 
@@ -114,7 +92,7 @@ async function sendEmails() {
     }
 
     // render the email
-    const html = await email.render("email", locals);
+    const html = await renderEmail("email", locals);
 
     if (renderOnly) {
 
@@ -136,11 +114,7 @@ async function sendEmails() {
             "h:List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
         }
 
-        await mailgun.messages().send(data, (error, body) => {
-            if (error) console.error(error);
-            else console.log(body);
-        });
-
+        await sendEmail(data);
     }
 
     await closeConnection();
