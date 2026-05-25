@@ -79,7 +79,10 @@ async function makeSummary() {
     );
 
     // get news
-    const news = await buildNews(dbInstance, endDate, 6);
+    const news = await buildNews(dbInstance, endDate, 5);
+
+    // construct prompt for Cerebras
+    if (verbose) console.log(`Mister Ex composing report for week ending ${endDate}`);
 
     const prompt = buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
                                schedule, report_notes.notes, news);
@@ -90,45 +93,50 @@ async function makeSummary() {
     }
 
     const response = await askCerebras(prompt);
-    const summary = response.choices[0].message.content;
-    if (verbose || testing) {
-        console.log("summary: \n\n");
-        console.log(summary);
-        console.log("\nprompt tokens", response.usage.prompt_tokens);
-        console.log("tokens generated", response.usage.completion_tokens);
-        console.log("total tokens", response.usage.total_tokens);
-    }
-
-    let answer = "y";
-    if (!yes && !testing) {
-        // Pause for user confirmation
-        answer = await rl.question("\n\nCommit the summary to Mongodb? (y/n): ");
-    }
-
-    if (!testing && answer === "y") {
-        // update reports collection
-        const reportsCollection = dbInstance.collection("reports");
-        const reportsResult = await reportsCollection.updateOne(
-            {
-                "endDate": endDate
-            },
-            {
-                "$set":
-                    {
-                        "summary": summary
-                    }
-            },
-            {
-                "upsert": true
-            }
-        );
-        if (reportsResult.acknowledged) {
-            if (verbose) console.log(reportsResult);
+    if ("error" in response) {
+        console.error(response);
+    } else {
+        const summary = response.choices[0].message.content;
+        if (verbose || testing) {
+            console.log("summary: \n\n");
+            console.log(summary);
+            console.log("\nprompt tokens", response.usage.prompt_tokens);
+            console.log("tokens generated", response.usage.completion_tokens);
+            console.log("total tokens", response.usage.total_tokens);
         }
-    }
 
-    // close user-input interface
-    rl.close();
+        let answer = "y";
+        if (!yes && !testing) {
+            // Pause for user confirmation
+            answer = await rl.question("\n\nCommit the summary to Mongodb? (y/n): ");
+        }
+
+        if (!testing && answer === "y") {
+            // update reports collection
+            const reportsCollection = dbInstance.collection("reports");
+            const reportsResult = await reportsCollection.updateOne(
+                {
+                    "endDate": endDate
+                },
+                {
+                    "$set":
+                        {
+                            "summary": summary
+                        }
+                },
+                {
+                    "upsert": true
+                }
+            );
+            if (reportsResult.acknowledged) {
+                if (verbose) console.log(reportsResult);
+            }
+        }
+
+        // close user-input interface
+        rl.close();
+
+    }
 
     // close mongo connection
     await closeConnection();

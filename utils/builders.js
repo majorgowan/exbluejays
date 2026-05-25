@@ -39,6 +39,7 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "name": player.fullName,
                 "position": player.position,
                 "team": ps.team,
+                "yearsWithJays": player.years_with_jays,
                 "ex_since": player.years_with_jays.at(-1),
                 "gamesWithJays": player.games_with_jays,
                 "gamesPlayed": ps.gamesPlayed,
@@ -72,6 +73,7 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "_id": player._id,
                 "name": player.fullName,
                 "team": ps.team,
+                "yearsWithJays": player.years_with_jays.join(","),
                 "ex_since": player.years_with_jays.at(-1),
                 "gamesWithJays": player.games_with_jays,
                 "gamesPitched": ps.gamesPitched,
@@ -149,7 +151,7 @@ async function buildSeries(dbInstance, endDate) {
 }
 
 
-async function buildNews(dbInstance, endDate, threshold=7) {
+async function buildNews(dbInstance, endDate, threshold=6) {
     // retrieve schedule from the report
     const newsRoundup = await dbInstance.collection("news").find(
         {
