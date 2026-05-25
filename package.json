@@ -20,6 +20,7 @@
     "ejs": "^5.0.2",
     "email-templates": "^13.0.1",
     "express": "^5.2.1",
+    "json-llm-repair": "^0.1.5",
     "json-to-markdown-table": "^1.0.0",
     "mailgun-js": "^0.22.0",
     "mongodb": "^7.2.0",

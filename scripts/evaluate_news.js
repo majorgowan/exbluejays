@@ -1,8 +1,9 @@
 require("dotenv").config();
+const { parseFromLLM } = require("json-llm-repair");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { rateNews } = require("../utils/cerebras");
 const { lastSunday, sleep } = require("../utils/utils");
-const argv = require('yargs')
+const argv = require("yargs")
     .option("endDate", {
         type: "string",
         describe: "specify end date"
@@ -25,8 +26,11 @@ if (endDate === undefined) {
 async function evaluateArticle(article) {
     const cerebrasRating = await rateNews(article.content, article.playerName);
     if (!("error" in cerebrasRating)) {
-        if (verbose) console.log("Cerebras: ", cerebrasRating.choices[0].message.content);
-        return JSON.parse(cerebrasRating.choices[0].message.content);
+        const rawResponse =  cerebrasRating.choices[0].message.content;
+        if (verbose) console.log("Cerebras: ", rawResponse);
+        // sanitize the response (in case there are unescaped tabs, which happens)
+        return parseFromLLM(rawResponse, {"mode": "repair"});
+
     } else if (cerebrasRating.error?.status === 429) {
         // server busy, pause for a minute
         if (verbose) console.log("Pausing for 30 seconds.");
