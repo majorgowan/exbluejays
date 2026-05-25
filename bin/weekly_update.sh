@@ -1,4 +1,12 @@
 #!/bin/bash
+
+# Get day of week as number (1=Monday, 7=Sunday)
+day_num=$(date +%u)
+
+if [ "$day_num" -ne "$1" ]; then
+  exit 0
+fi
+
 echo "Starting weekly update..."
 set -e
 
