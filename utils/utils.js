@@ -4,6 +4,7 @@ function lastSunday(endDate=null) {
         endDateObj = new Date(endDate);
     } else {
         endDateObj = new Date();
+        endDateObj.setHours(0, 0, 0);
     }
     const day = endDateObj.getUTCDay();
     if (day === 0) {
