@@ -5,6 +5,11 @@ const client = tavily({
 });
 
 async function askTavily(query, startDate, endDate, domains) {
+    // push endDate one day to get news from Sunday's games
+    const endDatePlus = new Date(endDate);
+    endDatePlus.setUTCDate(endDatePlus.getUTCDate() + 1);
+    const endDatePlusStr = endDatePlus.toISOString().split("T")[0];
+
     try {
 
         const response = await client.search(query, {
@@ -12,7 +17,7 @@ async function askTavily(query, startDate, endDate, domains) {
             searchDepth: "advanced",
             maxResults: 3,
             startDate: startDate,
-            endDate: endDate,
+            endDate: endDatePlusStr,
             includeDomains: domains,
             chunksPerSource: 3
         });

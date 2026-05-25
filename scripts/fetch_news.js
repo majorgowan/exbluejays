@@ -72,6 +72,7 @@ async function processPlayer(player, newsCollection) {
                 // server busy, pause for a minute
                 if (verbose) console.log("Pausing for 60 seconds.");
                 await sleep(60000);
+                // TODO: come back later to fill in missing Cerebras documents
             }
         }
         playerNews.push(articleData);
