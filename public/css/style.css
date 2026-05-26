@@ -6,6 +6,14 @@ body {
     color: steelblue;
 }
 
+/* For small phones */
+@media (max-width: 576px) {
+    body {
+        margin: 10px;
+        font-size: 18px;
+    }
+}
+
 header {
     padding-bottom: 10px;
 }
@@ -87,31 +95,43 @@ p {
 
 .dateselectdiv {
     display: flex;
-    width: 85%;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
 }
-.radiodiv {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: -10px;
+.dateselectdiv h3 {
+    margin: 0;
 }
-
-.exjayradio {
-    font-size: large;
-    color: darkred;
-}
-
 .exjayselect {
     color: darkred;
     background-color: lightsteelblue;
     font-size: medium;
-    padding: 6px 20px;
+    padding: 6px 10px;
+    margin-left: 10px;
+    margin-right: 10%;
 }
 .exjayselect:invalid {
     color: lightgray;
+}
+
+.radiodiv {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 30px;
+}
+.radiodiv h3 {
+    margin: 0
+}
+.exjayradiopanel {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    padding-right: 10%;
+}
+.exjayradio {
+    font-size: large;
+    color: darkred;
 }
 
 .exjayform {
@@ -143,13 +163,17 @@ table.sortable thead {
     text-align: left;
     margin-bottom: 15px;
 }
+.exjaytablediv {
+    overflow-x: auto; /* Enables horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
 .exjaytable th {
     padding: 6px;
-    font-size: small
+    font-size: small;
 }
 .exjaytable td {
     padding: 4px;
-    font-size: small
+    font-size: small;
 }
 .tstat {
     text-align: center;

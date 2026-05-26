@@ -28,19 +28,22 @@
     <h3 class="exjayheading">
         Stats Corner
     </h3>
-    &emsp; &emsp;
-    &emsp; &emsp;
-    <span>
-        <input class="exjayradio" id="weekRadio" type="radio" value="week"
-               name="exjayradio" checked onchange="changeYTD()">
-        <label class="exjayradio" for="weekRadio">Past week</label>
 
-        &emsp; &emsp;
+    &emsp; &emsp;
 
-        <input class="exjayradio" id="ytdRadio" type="radio" value="ytd"
-               name="exjayradio" onchange="changeYTD()">
-        <label class="exjayradio" for="ytdRadio">Year-to-date</label>
-    </span>
+    <div class="exjayradiopanel">
+        <div>
+            <input class="exjayradio" id="weekRadio" type="radio" value="week"
+                   name="exjayradio" checked onchange="changeYTD()">
+            <label class="exjayradio" for="weekRadio">Past week</label>
+        </div>
+
+        <div>
+            <input class="exjayradio" id="ytdRadio" type="radio" value="ytd"
+                   name="exjayradio" onchange="changeYTD()">
+            <label class="exjayradio" for="ytdRadio">Year-to-date</label>
+        </div>
+    </div>
 </div>
 <h4 class="exjayheading">
     The Ex Bats
