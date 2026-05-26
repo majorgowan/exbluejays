@@ -92,10 +92,9 @@ async function makeSummary() {
         console.log("\n\n");
     }
 
-    const response = await askCerebras(prompt);
-    if ("error" in response) {
-        console.error(response);
-    } else {
+    try {
+        const response = await askCerebras(prompt);
+
         const summary = response.choices[0].message.content;
         if (verbose || testing) {
             console.log("summary: \n\n");
@@ -135,6 +134,11 @@ async function makeSummary() {
 
         // close user-input interface
         rl.close();
+
+    } catch (error) {
+
+        console.error(error);
+        process.exit(1);
 
     }
 

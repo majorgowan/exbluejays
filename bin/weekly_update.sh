@@ -19,9 +19,9 @@ node ./scripts/update_stats.js --verbose
 echo "Fetching news"
 node ./scripts/fetch_news.js --verbose
 
-echo "Evaluating news"    # run multiple times in case Cerebras server busy
+echo "Evaluating news"    # run twice in case Cerebras server busy
 node ./scripts/evaluate_news.js --verbose
-node ./scripts/evaluate_news.js --verbose
+sleep 180
 node ./scripts/evaluate_news.js --verbose
 
 echo "Composing Mister Ex report"

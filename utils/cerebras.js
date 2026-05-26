@@ -2,10 +2,11 @@ const Cerebras = require("@cerebras/cerebras_cloud_sdk");
 const jsonToMarkdown = require("json-to-markdown-table");
 
 const client = new Cerebras({
-    apiKey: process.env.CEREBRAS_API_KEY
+    apiKey: process.env.CEREBRAS_API_KEY,
+    maxRetries: 8
 });
 
-async function askCerebras(content, response_format=null, temperature=0.2, max_completion_tokens=1024) {
+async function askCerebras(content, response_format = null, temperature = 0.2, max_completion_tokens = 1024) {
     try {
         const response = await client.chat.completions.create({
             model: process.env.CEREBRAS_MODEL,
@@ -24,12 +25,8 @@ async function askCerebras(content, response_format=null, temperature=0.2, max_c
         return response;
 
     } catch (error) {
-        if (error instanceof Cerebras.APIError) {
-            console.error("API Error: ", error.status, error.name, error.message);
-        } else {
-            console.error("Unexpected error:", error);
-        }
-        return {"error": error};
+        console.error("Error: ", error.status, error.name, error.message);
+        throw error;
     }
 }
 

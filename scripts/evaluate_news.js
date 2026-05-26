@@ -24,18 +24,21 @@ if (endDate === undefined) {
 
 
 async function evaluateArticle(article) {
-    const cerebrasRating = await rateNews(article.content, article.playerName);
-    if (!("error" in cerebrasRating)) {
+    try {
+        const cerebrasRating = await rateNews(article.content, article.playerName);
         const rawResponse =  cerebrasRating.choices[0].message.content;
         if (verbose) console.log("Cerebras: ", rawResponse);
         // sanitize the response (in case there are unescaped tabs, which happens)
         return parseFromLLM(rawResponse, {"mode": "repair"});
-
-    } else if (cerebrasRating.error?.status === 429) {
-        // server busy, pause for a minute
-        if (verbose) console.log("Pausing for 30 seconds.");
-        await sleep(30000);
-        return null;
+    } catch (error) {
+        // server busy, giving up, pause for 30 seconds and continue
+        if (error.status === 429) {
+            if (verbose) console.log("Pausing for 30 seconds.");
+            await sleep(30000);
+            return null;
+        } else {
+            throw error;
+        }
     }
 }
 
