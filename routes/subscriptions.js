@@ -151,7 +151,7 @@ router.get("/confirm", async (req, res) => {
                 retry = true;
             } else {
                 // confirmation successful
-                message = `${emailAddress} is now confirmed.  Remember to check your spam folder every Monday.`;
+                message = `${emailAddress} is now confirmed.  Remember to check your spam folder every Tuesday!`;
                 // update the database
                 const result = await subscribers.updateOne(
                     {

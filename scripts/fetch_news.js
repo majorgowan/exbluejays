@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { fuzzy } = require("fast-fuzzy");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { askTavily, buildQuery } = require("../utils/tavily");
 const { lastSunday, generateRandomString, sleep } = require("../utils/utils");
@@ -19,6 +20,7 @@ const argv = require('yargs')
         describe: "generate verbose output to console"
     }).argv;
 
+
 const verbose = argv.verbose;
 const relevanceThreshold = argv.relevance_threshold;
 
@@ -36,6 +38,20 @@ const domains = [
     // "mlb.com",
     // "cbssports.com"
 ];
+
+
+function hasDuplicate(article, articleList, titleThreshold, contentThreshold) {
+    if (verbose) console.log("checking for duplicates. . .");
+    articleList.forEach(other => {
+        const titleComp = fuzzy(article.title, other.title);
+        const contentComp = fuzzy(article.content, other.content);
+        if (titleComp > titleThreshold && contentComp > contentThreshold) {
+            if (verbose) console.log(`Duplicate of ${other.title}`);
+            return true;
+        }
+    })
+    return false;
+}
 
 
 async function fetchPlayerNews(player, newsCollection, minRelevance) {
@@ -57,7 +73,10 @@ async function fetchPlayerNews(player, newsCollection, minRelevance) {
                 "_id": generateRandomString(10)
             };
             if (verbose) console.log(articleData);
-            playerNews.push(articleData);
+            // compare to previous articles in case of duplicate
+            if (!hasDuplicate(articleData, playerNews, 0.7, 0.3)) {
+                playerNews.push(articleData);
+            }
         }
     }
     // push the news to mongo

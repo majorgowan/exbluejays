@@ -22,10 +22,10 @@ const argv = require('yargs')
         type: "string",
         describe: "destination email address"
     })
-    .option("Monday", {
+    .option("Tuesday", {
         type: "boolean",
         default: false,
-        describe: "only execute script if day is Monday"
+        describe: "only execute script if day is Tuesday"
     })
     .option("verbose", {
         alias: "v",
@@ -37,14 +37,14 @@ const argv = require('yargs')
 const renderOnly = argv.render;
 const destinationEmail = argv.destination;
 let endDate = argv.endDate;
-const monday = argv.Monday;
+const tuesday = argv.Tuesday;
 const verbose = argv.verbose;
 const senderEmail = process.env.EMAIL_SENDER_ADDRESS;
 const businessAddress = process.env.BUSINESS_ADDRESS;
 
-if (monday && new Date().getDay() !== 1) {
-    // quit abruptly if it isn't Monday
-    if (verbose) console.log("Today is not Monday, quitting.");
+if (tuesday && new Date().getDay() !== 2) {
+    // quit abruptly if it isn't Tuesday
+    if (verbose) console.log("Today is not Tuesday, quitting.");
     process.exit(0);
 }
 
