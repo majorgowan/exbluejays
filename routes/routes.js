@@ -21,6 +21,25 @@ router.get("/", async (req, res) => {
         return date.endDate;
     });
 
+    res.redirect(`/report?endDate=${endDates[0]}`);
+});
+
+
+router.get("/home", async (req, res) => {
+    const dbInstance = await connectToDatabase("exbluejays");
+
+    // get list of weekly reports
+    const datesArray = await dbInstance.collection("reports").find(
+        {},
+        {
+            "sort": {"endDate": -1},
+            "projection": {"endDate": 1}
+        }
+    ).toArray();
+    const endDates = datesArray.map((date) => {
+        return date.endDate;
+    });
+
     res.render('index',
         {
             "endDates": endDates
@@ -82,9 +101,15 @@ router.get("/report", async (req, res) => {
         });
 });
 
-router.get("/db", async (req, res) => {
+router.get("/db/:player", async (req, res) => {
     const dbInstance = await connectToDatabase("exbluejays");
-    const playersArray = await dbInstance.collection("players").find({}).toArray();
+    const player_pattern = req.params.player;
+    const playersArray = await dbInstance.collection("players").find(
+        {
+            "fullName": {
+                "$regex": player_pattern
+            }
+        }).toArray();
     res.json(playersArray);
 });
 

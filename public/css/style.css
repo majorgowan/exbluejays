@@ -215,7 +215,9 @@ footer {
 }
 
 .subscribe {
-    margin-top: 50px;
-    color: darkred;
+    margin: 30px 0;
     font-weight: bold;
+}
+.subscribe a {
+    color: darkred;
 }
