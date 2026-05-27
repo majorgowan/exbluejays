@@ -60,7 +60,7 @@ router.get("/report", async (req, res) => {
     const news = await buildNews(dbInstance, endDate, 6);
 
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
-        {weekday: "long", month: "long", day: "numeric", timeZone: "UTC"}
+        {weekday: "short", month: "long", day: "numeric", timeZone: "UTC"}
     );
 
     console.log(`Returning ${hitters_week.length} ex Blue Jay hitters and ${pitchers_week.length} ex Blue Jay pitchers.`);

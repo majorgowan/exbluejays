@@ -6,17 +6,23 @@
             <th class="left-th">Ex-Blue Jay</th>
         </thead>
         <% for (newsItem of news) { %>
-        <tr>
+        <tr class="exjaynewsrow">
             <td>
                 <span><%= newsItem.shortDate %>:</span>
             </td>
             <td class="exjaynewsitem <%= newsItem.categoryClass %>">
                 <span class="exjaynewstitle">
-                <a title="<%= newsItem.summary %>" target="_blank" href="<%= newsItem.url %>"><%= newsItem.shortTitle %></a>
+                <a title="<%= newsItem.summary %>" target="_blank" href="<%= newsItem.url %>">
+                    <%= newsItem.shortTitle %></a>&nbsp;<a class="newssummaryopen">&#9660;</a>
                 </span>
             </td>
             <td>
                 <span><%= newsItem.playerName %></span>
+            </td>
+        </tr>
+        <tr class="exjaynewssummary">
+            <td colspan="3" class="<%= newsItem.categoryClass %>">
+                <%= newsItem.summary %>
             </td>
         </tr>
         <% } %>

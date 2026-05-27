@@ -80,6 +80,16 @@ p {
     font-family: "Times New Roman", serif;
     font-variant-caps: small-caps;
 }
+.exjaynewssummary {
+    display: none;
+    font-size: small;
+}
+.exjaynewssummary td {
+    border: slategray 2px solid;
+    border-top: none;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
 .left-th {
     text-align: left;
 }
@@ -91,6 +101,15 @@ p {
 }
 .categoryaward {
     color: darkgoldenrod;
+}
+/* anchor to show summary only on small screens */
+.newssummaryopen {
+    display: none;
+}
+@media (max-width: 576px) {
+    .newssummaryopen {
+        display: inline-block;
+    }
 }
 
 .dateselectdiv {
