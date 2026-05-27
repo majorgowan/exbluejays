@@ -50,7 +50,7 @@ router.post("/subscribe", async (req, res) => {
                 "upsert": true
             });
         console.log(result);
-        message = `${emailAddress} is now subscribed pending confirmation.<BR><BR>Check your inbox bzw. spam folder for a confirmation request.`
+        message = `${emailAddress} is now subscribed pending confirmation.  Check your inbox bzw. spam folder for a confirmation request.`
 
         // send confirmation email
         const confirmationUrl = `https://exbluejays.ca/confirm?email=${emailAddress}&token=${token}`;
@@ -146,7 +146,7 @@ router.get("/confirm", async (req, res) => {
             if (findMatch.token !== confirmationToken) {
                 message = "Confirmation unsuccessful.  Incorrect token.";
                 retry = true;
-            } else if (now < findMatch.token_expiry) {
+            } else if (now > findMatch.token_expiry) {
                 message = "Confirmation unsuccessful.  Token expired.";
                 retry = true;
             } else {
