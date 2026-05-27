@@ -2,6 +2,7 @@ const express = require('express');
 const { connectToDatabase } = require("../utils/db");
 const { buildTables, buildSeries, buildSummary, buildNews } = require("../utils/builders");
 const { teamAbbMap} = require("../utils/mlb");
+const { dateStringToString } = require("../utils/utils");
 
 const router = express.Router();
 
@@ -37,7 +38,10 @@ router.get("/home", async (req, res) => {
         }
     ).toArray();
     const endDates = datesArray.map((date) => {
-        return date.endDate;
+        return {
+            "endDate": date.endDate,
+            "endDateString": dateStringToString(date.endDate)
+        };
     });
 
     res.render('index',
@@ -62,7 +66,10 @@ router.get("/report", async (req, res) => {
         }
     ).toArray();
     const endDates = datesArray.map((date) => {
-        return date.endDate;
+        return {
+            "endDate": date.endDate,
+            "endDateString": dateStringToString(date.endDate)
+        };
     });
 
     if (endDate === undefined) {

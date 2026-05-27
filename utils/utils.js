@@ -16,6 +16,13 @@ function lastSunday(endDate=null) {
 }
 
 
+function dateStringToString(date) {
+    return new Date(date).toLocaleDateString('en-US',
+        {month: "long", day: "numeric", timeZone: "UTC"}
+    );
+}
+
+
 function generateRandomString(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = "";
@@ -31,4 +38,4 @@ function sleep(ms) {
 }
 
 
-module.exports = { lastSunday, generateRandomString, sleep }
+module.exports = { lastSunday, dateStringToString, generateRandomString, sleep }

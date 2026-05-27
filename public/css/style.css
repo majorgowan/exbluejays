@@ -57,11 +57,13 @@ p {
     font-size: large;
     line-height: 2;
 }
+.exjaylist li a {
+    color: darkred;
+}
 .exjayseries {
     margin-bottom: 20px;
     line-height: 1.6;
 }
-
 .exjaylist li::marker {
     content: ""; /* or "›", "→", "•", etc. */
 }

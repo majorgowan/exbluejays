@@ -15,7 +15,7 @@
             onchange="changeEndDate()">
         <option value="" disabled selected>Select Week</option>
         <% endDates.forEach(date => { %>
-            <option value="<%= date %>"><%= date %></option>
+            <option value="<%= date.endDate %>"><%= date.endDateString %></option>
         <% }); %>
     </select>
 </div>
