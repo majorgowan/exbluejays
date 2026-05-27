@@ -102,11 +102,11 @@ p {
 .categoryaward {
     color: darkgoldenrod;
 }
-/* anchor to show summary only on small screens */
+/* anchor to show summary for touch screens (no mouse hover) */
 .newssummaryopen {
     display: none;
 }
-@media (max-width: 576px) {
+@media (hover: none) {
     .newssummaryopen {
         display: inline-block;
     }

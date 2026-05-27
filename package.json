@@ -7,7 +7,7 @@
     "start": "node app.js",
     "weekly_update": "bash bin/weekly_update.sh 1",
     "mister_ex_report": "node scripts/make_summary.js --verbose",
-    "send_weekly_emails": "node scripts/send_emails.js --Monday --verbose",
+    "send_weekly_emails": "node scripts/send_emails.js --Tuesday --verbose",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mark Fruman",
