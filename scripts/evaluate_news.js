@@ -35,7 +35,7 @@ async function evaluateArticle(article) {
         if (error.status === 429) {
             if (verbose) console.log("Pausing for 30 seconds.");
             await sleep(30000);
-            return null;
+            return {"failed": article._id.toString()};
         } else {
             throw error;
         }
@@ -43,19 +43,31 @@ async function evaluateArticle(article) {
 }
 
 
-async function evaluateNews() {
+async function evaluateNews(dbInstance, articleList = []) {
 
-    const dbInstance = await connectToDatabase("exbluejays");
     const newsCollection = dbInstance.collection("news");
 
     let counter = 0;
+    const failedList = [];
 
-    // find all articles for the week in question
-    const cursor = newsCollection.find(
-        {
-            "endDate": endDate
-        }
-    );
+    let cursor;
+    if (articleList.length === 0) {
+        // find all articles for the week in question
+        cursor = newsCollection.find(
+            {
+                "endDate": endDate
+            }
+        );
+    } else {
+        // find articles missed in last iteration
+        cursor = newsCollection.find(
+            {
+                "article._id": {
+                    "$in": articleList
+                }
+            }
+        );
+    }
 
     // iterate over cursor, evaluating each news item with Cerebras
     for await (const article of cursor) {
@@ -71,7 +83,10 @@ async function evaluateNews() {
 
             // evaluate the news and update document
             const evaluation = await evaluateArticle(article);
-            if (evaluation) {
+            if ("failed" in evaluation) {
+                if (verbose) console.log(`article ${evaluation.failed} failed to evaluate.`);
+                failedList.push(evaluation.failed);
+            } else {
                 const cerebrasResult = await newsCollection.updateOne(
                     {
                         "_id": article._id
@@ -87,9 +102,32 @@ async function evaluateNews() {
         }
     }
 
+    return failedList;
+
+}
+
+async function evaluateAllNews() {
+    const dbInstance = await connectToDatabase("exbluejays");
+
+    // retry 4 times to hopefully get all failures
+    let failedList = [];
+    for (let retry = 0; retry < 3; retry++) {
+        failedList = await evaluateNews(dbInstance, failedList);
+        if (failedList.length === 0) {
+            if (verbose) console.log(`All articles evaluated!`);
+            break;
+        }
+
+        if (verbose) console.log(`${failedList.length} failed to evaluate.`);
+
+        // wait one minute before retry
+        await sleep(60000);
+    }
+
     await closeConnection();
 }
 
 
 if (verbose) console.log(`Evaluating news for week ending ${endDate}`);
-evaluateNews();
+
+evaluateAllNews();

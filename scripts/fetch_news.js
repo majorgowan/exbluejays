@@ -115,6 +115,7 @@ async function fetchGroupNews(playerCursor, newsCollection) {
     }
 }
 
+
 async function fetchNews() {
 
     const dbInstance = await connectToDatabase("exbluejays");
