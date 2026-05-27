@@ -25,4 +25,7 @@ node ./scripts/evaluate_news.js --verbose
 echo "Composing Mister Ex report"
 node ./scripts/make_summary.js --verbose --yes
 
+echo "Sending quality-control email to the Boss"
+node scripts/send_emails.js --verbose --destination=mark.fruman@yahoo.com
+
 echo "All scripts executed."
