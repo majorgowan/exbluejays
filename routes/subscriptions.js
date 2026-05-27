@@ -20,7 +20,7 @@ router.get("/subscribe", (req, res) => {
 
 router.post("/subscribe", async (req, res) => {
     let message;
-    const emailAddress = req.body.email_address;
+    const emailAddress = req.body.email;
     // process form, add address to mongo etc.
     const dbInstance = await connectToDatabase("exbluejays");
     const subscribers = dbInstance.collection("subscribers");
@@ -92,7 +92,7 @@ router.get("/unsubscribe", (req, res) => {
 
 router.post("/unsubscribe", async (req, res) => {
     let message;
-    const emailAddress = req.body.email_address;
+    const emailAddress = req.body.email;
     // process form, add address to mongo etc.
     const dbInstance = await connectToDatabase("exbluejays");
     const subscribers = dbInstance.collection("subscribers");

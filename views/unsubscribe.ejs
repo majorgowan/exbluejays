@@ -9,8 +9,8 @@
         <h4 class="exjayheading">Unsubscribe from the Ex-Blue Jay Report</h4><BR>
         <form method="POST" action="/unsubscribe">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <label for="email_address">Please enter your email address:</label>
-            <input type="email" id="email_address" name="email_address"
+            <label for="email">Please enter your email address:</label>
+            <input type="email" id="email" name="email"
                    value="<%= emailAddress %>" required>
             <button type="submit">Submit</button>
         </form>

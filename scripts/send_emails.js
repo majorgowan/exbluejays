@@ -1,6 +1,5 @@
 require("dotenv").config();
 const fs = require("fs");
-const path = require("path");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { renderEmail, sendEmail } = require("../utils/email");
 const { buildTables, buildSeries, buildSummary, buildNews} = require("../utils/builders");
@@ -134,7 +133,7 @@ async function sendEmails() {
     for (const emailAddress of emailList) {
 
         const locals = {
-            "email_address": emailAddress,
+            "email": emailAddress,
             "business_address": businessAddress,
             "unsubscribe_url": unsubscribe_url,
             "hitters_week": hitters_week,
