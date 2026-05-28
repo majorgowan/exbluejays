@@ -1,4 +1,4 @@
-## Ex-Blue Jays
+## The Ex-Blue Jays Report
 
 The resource for keeping tabs on former members of your Toronto Blue Jays.
 
