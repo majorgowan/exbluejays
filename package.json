@@ -12,6 +12,10 @@
   },
   "author": "Mark Fruman",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/majorgowan/exbluejays/"
+  },
   "dependencies": {
     "@cerebras/cerebras_cloud_sdk": "^1.64.1",
     "@tavily/core": "^0.7.3",

@@ -20,8 +20,9 @@ const handleMongoError = (error, req, res, next) => {
 };
 
 const handleGlobalError = (error, req, res, next) => {
-    console.error(err);
-    res.redirect("back");
+    console.error(error);
+    const returnTo = req.get("Referrer") || "/";
+    res.redirect(returnTo);
 };
 
 module.exports = { handleCsrfError, handleMongoError, handleGlobalError };
