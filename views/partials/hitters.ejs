@@ -22,10 +22,12 @@
         </thead>
         <tbody>
         <%- hitters.map(player => `<tr><td><a class="exjayplayerlink" href="${players_url}/${player._id}" target="_blank" rel="noopener noreferrer">${player.name}</a></td>
-                                       <td><i class="logo bbclub-${teamAbbMap[player.team]}" title="${player.team}"></i></td>
+                                       <td>
+                                            ${(locals.email) ? teamAbbMap[player.team].toUpperCase() : `<i class="logo bbclub-${teamAbbMap[player.team]}" title="${player.team}"></i>`}
+                                       </td>
                                        <td>${player.position}</td>
-                                       <td>${player.gamesWithJays}</td>
-                                       <td title="Seasons with Jays: ${player.yearsWithJays}">${player.ex_since}</td>
+                                       <td class="fixstat">${player.gamesWithJays}</td>
+                                       <td class="fixstat" title="Seasons with Jays: ${player.yearsWithJays}">${player.ex_since}</td>
                                        <td class="tstat">${player.gamesPlayed}</td>
                                        <td class="tstat">${player.atBats}</td>
                                        <td class="tstat">${player.hits}</td>

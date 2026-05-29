@@ -198,8 +198,11 @@ table.sortable thead {
     font-size: small;
 }
 .tstat {
-    text-align: center;
+    text-align: right;
     color: darkred;
+}
+.fixstat {
+    text-align: right;
 }
 .logo {
     color: navy;
