@@ -14,6 +14,7 @@ async function askCerebras(content, response_format = null, temperature = 0.2, m
             temperature: temperature,
             stream: false,
             response_format: response_format,
+            reasoning_effort: "low",
             messages: [
                 {
                     role: "user",
