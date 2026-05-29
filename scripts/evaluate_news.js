@@ -31,10 +31,10 @@ async function evaluateArticle(article) {
         // sanitize the response (in case there are unescaped tabs, which happens)
         return parseFromLLM(rawResponse, {"mode": "repair"});
     } catch (error) {
-        // server busy, giving up, pause for 30 seconds and continue
+        // server busy, giving up, pause for a few seconds and continue
         if (error.status === 429) {
-            if (verbose) console.log("Pausing for 30 seconds.");
-            await sleep(30000);
+            if (verbose) console.log("Pausing for 10 seconds.");
+            await sleep(10000);
             return {"failed": article._id.toString()};
         } else {
             throw error;
@@ -60,9 +60,10 @@ async function evaluateNews(dbInstance, articleList = []) {
         );
     } else {
         // find articles missed in last iteration
+        if (verbose) console.log(`evaluating articles ${articleList.join(", ")}`);
         cursor = newsCollection.find(
             {
-                "article._id": {
+                "_id": {
                     "$in": articleList
                 }
             }
@@ -112,6 +113,7 @@ async function evaluateAllNews() {
     // retry 4 times to hopefully get all failures
     let failedList = [];
     for (let retry = 0; retry < 3; retry++) {
+        if (verbose && failedList.length > 0) console.log(`retrying ${failedList.length} articles.`);
         failedList = await evaluateNews(dbInstance, failedList);
         if (failedList.length === 0) {
             if (verbose) console.log(`All articles evaluated!`);

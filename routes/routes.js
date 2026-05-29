@@ -83,7 +83,7 @@ router.get("/report", async (req, res) => {
 
     const schedule = await buildSeries(dbInstance, endDate);
     const summary = await buildSummary(dbInstance, endDate);
-    const news = await buildNews(dbInstance, endDate, 6);
+    const news = await buildNews(dbInstance, endDate, 4);
 
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
         {weekday: "short", month: "long", day: "numeric", timeZone: "UTC"}
