@@ -126,8 +126,8 @@ async function fetchNews() {
     // search for news about each of them (relevant chunks & url is sufficient)
     const exbats = await dbInstance.collection("players").find(
         {
-            "games_with_jays": {"$gte": 100},
-            "latest_team": {"$not": { "$regex": "Toronto" } },
+            "gamesWithJays": {"$gte": 100},
+            "latestTeam": {"$not": { "$regex": "Toronto" } },
             "position": {"$ne": "Pitcher"},
             "stats": { "$exists": true }
         },
@@ -135,11 +135,11 @@ async function fetchNews() {
             "projection": {
                 "fullName": 1,
                 "position": 1,
-                "latest_team": 1,
-                "games_with_jays": 1
+                "latestTeam": 1,
+                "gamesWithJays": 1
             },
             "sort": {
-                "games_with_jays": -1
+                "gamesWithJays": -1
             },
             "limit": 30,
         }
@@ -148,8 +148,8 @@ async function fetchNews() {
 
     const exarms = await dbInstance.collection("players").find(
         {
-            "games_with_jays": {"$gte": 25},
-            "latest_team": {"$not": { "$regex": "Toronto" } },
+            "gamesWithJays": {"$gte": 25},
+            "latestTeam": {"$not": { "$regex": "Toronto" } },
             "position": "Pitcher",
             "stats": { "$exists": true }
         },
@@ -157,11 +157,11 @@ async function fetchNews() {
             "projection": {
                 "fullName": 1,
                 "position": 1,
-                "latest_team": 1,
-                "games_with_jays": 1
+                "latestTeam": 1,
+                "gamesWithJays": 1
             },
             "sort": {
-                "games_with_jays": -1
+                "gamesWithJays": -1
             },
             "limit": 30,
         }

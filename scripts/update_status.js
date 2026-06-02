@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { sleep } = require("../utils/utils");
+const {teamIdMap} = require("../utils/mlb");
 const argv = require("yargs")
     .option("allPlayers", {
         type: "string",
@@ -59,7 +60,27 @@ function checkActivity(playerBio) {
     return returnDict;
 }
 
-function checkCareerTeams(playerStatSplits) {
+
+function getTeamChanges(transactions) {
+    const transMLB = transactions.filter(tran => {
+        return tran.toTeam.id in teamIdMap;
+    }).map(tran => {
+        return {
+            "dateString": tran.date,
+            "to": tran.toTeam.name,
+            "desc": tran.description
+        }
+    });
+
+    const changes = transMLB.slice(1).filter((current, i) => {
+        return current.to !== transMLB[i].to;
+    });
+
+    return changes;
+}
+
+
+function getYearsWithJays(playerStatSplits) {
     // take array of season stats
     // if player with multiple teams in a single season, one
     // set of stats for each team/year plus a cumulative set
@@ -78,9 +99,8 @@ function checkCareerTeams(playerStatSplits) {
         }
     }
     return {
-        "years_with_jays": yearsWithJays,
-        "games_with_jays": gamesWithJays,
-        "latest_team": latestTeam
+        "yearsWithJays": yearsWithJays,
+        "gamesWithJays": gamesWithJays
     };
 }
 
@@ -133,7 +153,6 @@ async function updateStatus() {
     // iterate again through the collection
     // if active, query player's career stats
     // check: years with Blue Jays
-    //        most recent team
     await cursor.rewind();
     for await (const player of cursor) {
         if (!skipRetired || !("retired" in player) || !player.retired ) {
@@ -144,7 +163,7 @@ async function updateStatus() {
             // if he plays for a different team
             const playerGroup = (player.position === "Pitcher") ? "pitching" : "hitting";
             const playerURL = `${MLB_API}${player.link}/stats?stats=yearByYear&group=${playerGroup}`;
-            const playerBaseURL = `${MLB_API}${player.link}`;
+            const playerBaseURL = `${MLB_API}${player.link}?hydrate=transactions`;
 
             try {
                 const response = await fetch(playerURL);
@@ -152,12 +171,12 @@ async function updateStatus() {
                 const playerData = await response.json();
                 // check career stats (years with Jays, current team)
                 if (playerData.stats.length > 0 && "splits" in playerData.stats[0]) {
-                    const playerInfo = checkCareerTeams(playerData.stats[0]?.splits);
-                    // update years_with_jays and latest_team
+                    const playerInfo = getYearsWithJays(playerData.stats[0]?.splits);
+                    // update yearsWithJays and gamesWithJays
                     // add even if still with Jays (filter at report time)
                     // to keep track of Jays that leave team each week
                     // upsert player into exBlueJays collection
-                    if (playerInfo.years_with_jays.length > 0) {
+                    if (playerInfo.yearsWithJays.length > 0) {
                         const exJayInfo = {...player, ...playerInfo};
                         const updateResult = await exBlueJaysCollection.updateOne(
                             {"_id": exJayInfo._id},
@@ -177,13 +196,18 @@ async function updateStatus() {
                 if (!response.ok) throw new Error(`Could not fetch ${playerURL}`);
                 const playerData = await response.json();
 
+                const teamChanges = getTeamChanges(playerData.people[0].transactions);
+                const latestTeam = teamChanges.at(-1)?.to;
+
                 const updateInfo = {
-                    position: playerData.people[0].primaryPosition.name,
-                    birthDate: playerData.people[0].birthDate,
-                    birthCity: playerData.people[0].birthCity,
-                    birthCountry: playerData.people[0].birthCountry,
-                    batSide: playerData.people[0].batSide.description,
-                    pitchHand: playerData.people[0].pitchHand.description
+                    "position": playerData.people[0].primaryPosition.name,
+                    "birthDate": playerData.people[0].birthDate,
+                    "birthCity": playerData.people[0].birthCity,
+                    "birthCountry": playerData.people[0].birthCountry,
+                    "batSide": playerData.people[0].batSide.description,
+                    "pitchHand": playerData.people[0].pitchHand.description,
+                    "teamChanges": teamChanges,
+                    "latestTeam": latestTeam
                 };
 
                 // update player in exBlueJays collection

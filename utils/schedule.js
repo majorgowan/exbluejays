@@ -52,7 +52,7 @@ async function getSchedule(dbInstance, endDate, verbose=false) {
             {
                 "$match": {
                     "active": true,
-                    "latest_team": opponent
+                    "latestTeam": opponent
                 }
             },
             {
@@ -67,7 +67,7 @@ async function getSchedule(dbInstance, endDate, verbose=false) {
                         }
                     },
                     "last_year_with_jays": {
-                        "$arrayElemAt": ["$years_with_jays", -1]
+                        "$arrayElemAt": ["$yearsWithJays", -1]
                     }
                 }
             }

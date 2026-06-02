@@ -114,7 +114,7 @@ async function sendEmails() {
     const summary = await buildSummary(dbInstance, endDate);
 
     // get news roundup
-    const news = await buildNews(dbInstance, endDate, 6);
+    const news = await buildNews(dbInstance, endDate, 5);
 
     // URL to unsubscribe from EBJR
     const unsubscribe_url = `https://exbluejays.ca/unsubscribe?email=${destinationEmail}`;

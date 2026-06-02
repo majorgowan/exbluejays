@@ -14,10 +14,10 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "_id": 1,
                 "fullName": 1,
                 "position": 1,
-                "latest_team": 1,
+                "latestTeam": 1,
                 [`${statsType}.${endDate}`]: 1,
-                "years_with_jays": 1,
-                "games_with_jays": 1
+                "yearsWithJays": 1,
+                "gamesWithJays": 1
             }
         },
         {
@@ -39,9 +39,9 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "name": player.fullName,
                 "position": player.position,
                 "team": ps.team,
-                "yearsWithJays": player.years_with_jays,
-                "ex_since": player.years_with_jays.at(-1),
-                "gamesWithJays": player.games_with_jays,
+                "yearsWithJays": player.yearsWithJays,
+                "ex_since": player.yearsWithJays.at(-1),
+                "gamesWithJays": player.gamesWithJays,
                 "gamesPlayed": ps.gamesPlayed,
                 "atBats": ps.atBats,
                 "avg": ps.avg,
@@ -73,9 +73,9 @@ async function buildTables(dbInstance, statsType, endDate) {
                 "_id": player._id,
                 "name": player.fullName,
                 "team": ps.team,
-                "yearsWithJays": player.years_with_jays.join(","),
-                "ex_since": player.years_with_jays.at(-1),
-                "gamesWithJays": player.games_with_jays,
+                "yearsWithJays": player.yearsWithJays.join(","),
+                "ex_since": player.yearsWithJays.at(-1),
+                "gamesWithJays": player.gamesWithJays,
                 "gamesPitched": ps.gamesPitched,
                 "gamesStarted": ps.gamesStarted,
                 "inningsPitched": ps.inningsPitched,
@@ -125,13 +125,13 @@ async function buildSeries(dbInstance, endDate) {
     // retrieve schedule from the report
     const scheduleDoc = await dbInstance.collection("reports").findOne(
         {"endDate": endDate},
-        {"jays_schedule": 1}
+        {"jaysSchedule": 1}
     );
 
     if (!scheduleDoc) return null;
 
     const series = {};
-    for (const game of scheduleDoc.jays_schedule.games) {
+    for (const game of scheduleDoc.jaysSchedule.games) {
         const key = `${game.phrase} ${game.opponent}`
         if (key in series) {
             series[key].to_date = game.officialDate;
@@ -141,8 +141,8 @@ async function buildSeries(dbInstance, endDate) {
                 venue: game.venue,
                 phrase: game.phrase,
                 from_date: game.officialDate,
-                exBats: scheduleDoc.jays_schedule.exBats[game.opponent],
-                exArms: scheduleDoc.jays_schedule.exArms[game.opponent],
+                exBats: scheduleDoc.jaysSchedule.exBats[game.opponent],
+                exArms: scheduleDoc.jaysSchedule.exArms[game.opponent],
             }
         }
     }

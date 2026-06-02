@@ -20,8 +20,8 @@
         <tbody>
         <%- players.map(player => `<tr><td>${player.fullName}</td>
                                        <td>${player.position}</td>
-                                       <td>${player.latest_team}</td>
-                                       <td>${player.years_with_jays.join(",")}</td></tr>`).join('') %>
+                                       <td>${player.latestTeam}</td>
+                                       <td>${player.yearsWithJays.join(",")}</td></tr>`).join('') %>
         </tbody>
     </table>
 </div>

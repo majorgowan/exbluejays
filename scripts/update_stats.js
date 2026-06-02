@@ -10,9 +10,8 @@ const argv = require("yargs")
         describe: "do not write to mongo (write local file)"
     })
     .option("bbtest", {
-        type: "boolean",
-        default: false,
-        describe: "Just update Bo Bichette and Chris Bassitt",
+        type: "string",
+        describe: "Just update player with provided pattern (local only)",
     })
     .option("days", {
         alias: "d",
@@ -24,6 +23,16 @@ const argv = require("yargs")
         type: "string",
         describe: "specify end date"
     })
+    .option("exBlueJays", {
+        type: "string",
+        default: "players",
+        describe: "name of collection with active ex-blue jays"
+    })
+    .option("reports", {
+        type: "string",
+        default: "reports",
+        describe: "name of collection with report details"
+    })
     .option("verbose", {
         alias: "v",
         type: "boolean",
@@ -34,10 +43,12 @@ const argv = require("yargs")
 const MLB_API = process.env.MLB_API;
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const local = argv.local;
+const local = argv.local || argv.bbtest;
 const days = argv.days;
 const bbtest = argv.bbtest;
 const endDate = argv.endDate;
+const exBlueJays = argv.exBlueJays;
+const reports = argv.reports;
 const verbose = argv.verbose;
 
 let endDateObj;
@@ -55,8 +66,7 @@ if (local) {
         fs.mkdirSync(`./output/${endDateString}`);
     } catch (err) {
         if (err.code === "EEXIST") {
-            console.log("Directory exists, exiting.");
-            process.exit(0);
+            console.log("Directory exists.  Continuing.");
         } else {
             console.error("Error creating folder", err);
             process.exit(1);
@@ -64,25 +74,19 @@ if (local) {
     }
 }
 
-function checkLatestTeam(stats) {
-    // if multiple teams in interval, latest team is first
-    return stats?.[0]?.splits?.[0]?.team.name;
-}
 
 async function updateStats() {
     const dbInstance = await connectToDatabase("exbluejays");
-    const teamChanges = {};
+    const playersCollection = dbInstance.collection(exBlueJays);
 
-    const playersCollection = dbInstance.collection("players");
-    const notes = [];
+    const transactionsList = [];
 
     let players_array;
     if (bbtest) {
         players_array = await playersCollection.find(
             {
                 "$or": [
-                    {"fullName": {"$regex": "Bichette"}},
-                    {"fullName": {"$regex": "Bass"}}
+                    {"fullName": {"$regex": bbtest}}
                 ]
             },
             {"_id": 1, "position": 1, "fullName": 1, "link": 1}).toArray();
@@ -114,28 +118,22 @@ async function updateStats() {
             if (player.position === "Pitcher") {
                 statsGroup = "pitching";
             }
-            const player_url = `${MLB_API}${player.link}/stats?stats=byDateRange&season=${currentYear}&group=${statsGroup}&startDate=${startDateString}&endDate=${endDateString}`;
+            const statsUrl = `${MLB_API}${player.link}/stats?stats=byDateRange&season=${currentYear}&group=${statsGroup}&startDate=${startDateString}&endDate=${endDateString}`;
+            const transactionUrl = `${MLB_API}${player.link}?hydrate=transactions`;
+
             // console.log(player_url);
             if (verbose) console.log(`fetching ${player.fullName}`);
 
             try {
-                const response = await fetch(player_url);
+                const response = await fetch(statsUrl);
                 if (!response.ok) {
                     throw new Error(`Could not fetch ${player.fullName}`);
                 }
                 const data = await response.json();
-                let latestTeam = checkLatestTeam(data.stats);
-                if (latestTeam && latestTeam !== player.latest_team && statsType === "stats") {
-                    const note = `${player.fullName} changed from ${player.latest_team} to ${latestTeam}`;
-                    console.log(note);
-                    notes.push(note);
-                    teamChanges[player._id] = latestTeam;
-                }
 
-                if ((latestTeam && !latestTeam.includes("Toronto")) && data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
+                if (data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
 
                     const updateDict = data.stats[0].splits.at(-1)["stat"];
-                    updateDict.team = latestTeam;
 
                     if (local) {
                         // write to local file instead of to Mongo
@@ -144,13 +142,13 @@ async function updateStats() {
                             "_id": player._id,
                             "fullName": player.fullName,
                             "active": player.active,
-                            "latest_team": player.latest_team,
-                            "years_with_jays": player.years_with_jays,
+                            "latestTeam": player.latestTeam,
+                            "years_with_jays": player.yearsWithJays,
                             "splits": data.stats[0].splits
                         }
-                        fs.writeFile(`data/${endDateString}/${player._id}_${lastName}.json`, JSON.stringify(jsonData, null, 2), (err) => {
+                        fs.writeFile(`output/${endDateString}/${player._id}_${lastName}_${statsType}.json`, JSON.stringify(jsonData, null, 2), (err) => {
                             if (err) throw err;
-                            console.log(`${player.fullName} written to file ${player._id}.json`);
+                            console.log(`${player.fullName} written to file ${player._id}_${lastName}_${statsType}.json`);
                         });
                     } else {
                         // update the Mongo record
@@ -172,6 +170,33 @@ async function updateStats() {
             } catch (error) {
                 console.error(error);
             }
+
+            // check for any transactions involving this player (only do on stats pass)
+            if (statsType === "stats") {
+
+                try {
+                    const response = await fetch(transactionUrl);
+                    if (!response.ok) throw new Error(`Could not fetch ${transactionUrl}`);
+                    const data = await response.json();
+                    const transactions = data.people[0].transactions;
+                    for (const trans of transactions) {
+                        if (trans.date > startDateString && trans.date <= endDateString) {
+                            transactionsList.push(
+                                {
+                                    "player_id": player._id,
+                                    "date": trans.date,
+                                    "description": trans.description,
+                                    "fromTeam": trans.fromTeam?.name,
+                                    "toTeam": trans.toTeam?.name,
+                                }
+                            );
+                            if (verbose) console.log(trans.description);
+                        }
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
         }
     }
 
@@ -179,8 +204,8 @@ async function updateStats() {
     const schedule = await getSchedule(dbInstance, endDateString, verbose);
 
     if (!local) {
-        // update reports collection
-        const reportsCollection = dbInstance.collection("reports");
+        // update reports collection (only once, for weekly stats pass)
+        const reportsCollection = dbInstance.collection(reports);
         const reportsResult = await reportsCollection.updateOne(
             {
                 "endDate": endDateString
@@ -189,8 +214,8 @@ async function updateStats() {
                 "$set":
                     {
                         "updated": new Date(),
-                        "notes": notes,
-                        "jays_schedule": schedule
+                        "jaysSchedule": schedule,
+                        "transactions": transactionsList
                     }
             },
             {
@@ -200,25 +225,6 @@ async function updateStats() {
         if (reportsResult.acknowledged) {
             if (verbose) console.log(reportsResult);
         }
-    }
-
-    if (verbose) {
-        console.log("team changes:");
-        console.log(teamChanges);
-    }
-    // apply team changes to players collection
-    for (const [player_id, new_team] of Object.entries(teamChanges)) {
-        const result = await playersCollection.updateOne(
-            {
-                "_id": parseInt(player_id),
-            },
-            {
-                "$set": {
-                    "latest_team": new_team
-                }
-            }
-        )
-        if (verbose) console.log(`applied team change: modified ${result.modifiedCount}`);
     }
 
     // close MongoDB connection

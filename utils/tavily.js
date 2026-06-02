@@ -32,7 +32,7 @@ async function askTavily(query, startDate, endDate, domains) {
 
 function buildQuery(player) {
     // generate the query for asking tavily
-    return `Find the latest baseball news about ${player.fullName} who plays ${player.position} for the ${player.latest_team}`;
+    return `Find the latest baseball news about ${player.fullName} who plays ${player.position} for the ${player.latestTeam}`;
 }
 
 
