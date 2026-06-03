@@ -1,9 +1,9 @@
 async function buildTables(dbInstance, statsType, endDate) {
     // retrieve stats for specified date
-    const playersArray = await dbInstance.collection("players").aggregate([
+    const playersArray = await dbInstance.collection("players1").aggregate([
         {
             "$match": {
-                "current_team": {
+                "latestTeam": {
                     "$not": {"$regex": "Toronto"}
                 },
                 [`${statsType}.${endDate}`]: {"$exists": true}
@@ -112,7 +112,7 @@ async function buildTables(dbInstance, statsType, endDate) {
 
 async function buildSummary(dbInstance, endDate) {
     // retrieve summary for specified date
-    const summaryDoc = await dbInstance.collection("reports").findOne(
+    const summaryDoc = await dbInstance.collection("reports1").findOne(
         { "endDate": endDate },
         { "summary": 1 }
     );
@@ -123,7 +123,7 @@ async function buildSummary(dbInstance, endDate) {
 
 async function buildSeries(dbInstance, endDate) {
     // retrieve schedule from the report
-    const scheduleDoc = await dbInstance.collection("reports").findOne(
+    const scheduleDoc = await dbInstance.collection("reports1").findOne(
         {"endDate": endDate},
         {"jaysSchedule": 1}
     );
@@ -148,6 +148,23 @@ async function buildSeries(dbInstance, endDate) {
     }
 
     return series;
+}
+
+
+async function buildTransactions(dbInstance, endDate) {
+    const report = await dbInstance.collection("reports1").findOne(
+        {"endDate": endDate},
+        {"transactions": 1}
+    );
+
+    return report.transactions.filter(trans => {
+        return !trans.team.includes("Toronto");
+    }).map(trans => {
+        trans.shortDate = (new Date(trans.date)).toLocaleDateString('en-US',
+            { month: 'long', day: 'numeric' }
+        );
+        return trans;
+    });
 }
 
 
@@ -188,4 +205,4 @@ async function buildNews(dbInstance, endDate, threshold=6) {
 }
 
 
-module.exports = { buildTables, buildSeries, buildSummary, buildNews };
+module.exports = { buildTables, buildSeries, buildSummary, buildTransactions, buildNews };

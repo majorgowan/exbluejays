@@ -1,6 +1,6 @@
 const express = require('express');
 const { connectToDatabase } = require("../utils/db");
-const { buildTables, buildSeries, buildSummary, buildNews } = require("../utils/builders");
+const { buildTables, buildSeries, buildSummary, buildTransactions, buildNews } = require("../utils/builders");
 const { teamAbbMap} = require("../utils/mlb");
 const { dateStringToString } = require("../utils/utils");
 
@@ -83,6 +83,7 @@ router.get("/report", async (req, res) => {
 
     const schedule = await buildSeries(dbInstance, endDate);
     const summary = await buildSummary(dbInstance, endDate);
+    const transactions = await buildTransactions(dbInstance, endDate);
     const news = await buildNews(dbInstance, endDate, 4);
 
     const endDateString = new Date(endDate).toLocaleDateString('en-US',
@@ -103,6 +104,7 @@ router.get("/report", async (req, res) => {
             pitchers_ytd: pitchers_ytd,
             schedule: schedule,
             summary: summary,
+            transactions: transactions,
             news: news,
             players_url: process.env.PLAYERS_URL
         });

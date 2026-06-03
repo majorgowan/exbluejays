@@ -1,7 +1,8 @@
 require("dotenv").config();
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { sleep } = require("../utils/utils");
-const {teamIdMap} = require("../utils/mlb");
+const { teamIdMap} = require("../utils/mlb");
+const { lastSunday } = require("../utils/utils");
 const argv = require("yargs")
     .option("allPlayers", {
         type: "string",
@@ -12,6 +13,10 @@ const argv = require("yargs")
         type: "string",
         default: "players",
         describe: "name of collection with active ex-blue jays"
+    })
+    .option("endDate", {
+        type: "string",
+        describe: "specify end date (for determining latestTeam"
     })
     .option("skipRetired", {
         type: "boolean",
@@ -34,9 +39,19 @@ const MLB_API = process.env.MLB_API;
 
 const allPlayers = argv.allPlayers;
 const exBlueJays = argv.exBlueJays;
+const endDate = argv.endDate;
 const skipRetired = argv.skipRetired;
 const skipStatus = argv.skipStatus;
 const verbose = argv.verbose;
+
+let endDateObj;
+if (endDate) {
+    endDateObj = new Date(endDate);
+} else {
+    // use last Sunday
+    endDateObj = lastSunday();
+}
+const endDateString = endDateObj.toISOString().split("T")[0];
 
 const fourYearsAgo = new Date();
 fourYearsAgo.setFullYear(fourYearsAgo.getFullYear() - 4);
@@ -72,8 +87,8 @@ function getTeamChanges(transactions) {
         }
     });
 
-    const changes = transMLB.slice(1).filter((current, i) => {
-        return current.to !== transMLB[i].to;
+    const changes = transMLB.filter((current, i) => {
+        return i === 0 || current.to !== transMLB[i - 1].to;
     });
 
     return changes;
@@ -197,7 +212,7 @@ async function updateStatus() {
                 const playerData = await response.json();
 
                 const teamChanges = getTeamChanges(playerData.people[0].transactions);
-                const latestTeam = teamChanges.at(-1)?.to;
+                const latestTeam = teamChanges.filter(tc => tc.date <= endDate).at(-1)?.to;
 
                 const updateInfo = {
                     "position": playerData.people[0].primaryPosition.name,

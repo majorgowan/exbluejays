@@ -65,6 +65,13 @@
     <%- include("partials/news.ejs") %>
 <% } %>
 
+<% if (locals.transactions && locals.transactions.length > 0) { %>
+    <h3 class="exjayheading">
+        Transactions
+    </h3>
+    <%- include("partials/transactions.ejs") %>
+<% } %>
+
 <% if (locals.schedule) { %>
     <h3 class="exjayheading">
         Blue Jays opponents this week

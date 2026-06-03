@@ -134,6 +134,7 @@ async function updateStats() {
                 if (data?.stats?.[0]?.splits?.at(-1)?.hasOwnProperty("stat")) {
 
                     const updateDict = data.stats[0].splits.at(-1)["stat"];
+                    updateDict.team = player.latestTeam;
 
                     if (local) {
                         // write to local file instead of to Mongo
@@ -143,7 +144,7 @@ async function updateStats() {
                             "fullName": player.fullName,
                             "active": player.active,
                             "latestTeam": player.latestTeam,
-                            "years_with_jays": player.yearsWithJays,
+                            "yearsWithJays": player.yearsWithJays,
                             "splits": data.stats[0].splits
                         }
                         fs.writeFile(`output/${endDateString}/${player._id}_${lastName}_${statsType}.json`, JSON.stringify(jsonData, null, 2), (err) => {
@@ -184,10 +185,14 @@ async function updateStats() {
                             transactionsList.push(
                                 {
                                     "player_id": player._id,
+                                    "playerName": player.fullName,
+                                    "team": player.latestTeam,
                                     "date": trans.date,
                                     "description": trans.description,
                                     "fromTeam": trans.fromTeam?.name,
                                     "toTeam": trans.toTeam?.name,
+                                    "typeDesc": trans.typeDesc,
+                                    "typeCode": trans.typeCode
                                 }
                             );
                             if (verbose) console.log(trans.description);

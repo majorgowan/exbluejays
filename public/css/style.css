@@ -114,6 +114,27 @@ p {
     }
 }
 
+.exjaytransactions {
+    color: darkred;
+    font-size: small;
+}
+.exjaytransactions td, th {
+    padding-left: 10px;
+    padding-top: 3px;
+    vertical-align: top;
+}
+.exjaytransaction {
+    width: 50%;
+    color: navy;
+}
+.exjaytransactiontype {
+    color: darkgreen;
+}
+.exjaytransaction a:hover, a:link, a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
 .dateselectdiv {
     display: flex;
     flex-direction: row;

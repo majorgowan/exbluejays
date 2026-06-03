@@ -1,0 +1,26 @@
+<div class="exjaytransactions">
+    <table>
+        <thead>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th class="left-th">Ex-Blue Jay</th>
+        </thead>
+        <% for (transaction of transactions) { %>
+            <tr class="exjaytransactionrow">
+                <td>
+                    <span><%= transaction.shortDate %>:</span>
+                </td>
+                <td class="exjaytransaction">
+                    <%= transaction.description %>
+                </td>
+                <td class="exjaytransactiontype">
+                    <span title="<%= transaction.typeDesc %>"><%= transaction.typeCode %></span>
+                </td>
+                <td>
+                    <a href="<%= players_url %>/<%= transaction.player_id %>"><%= transaction.playerName %></a>
+                </td>
+            </tr>
+        <% } %>
+    </table>
+</div>
