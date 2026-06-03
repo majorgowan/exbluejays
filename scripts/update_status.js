@@ -39,19 +39,15 @@ const MLB_API = process.env.MLB_API;
 
 const allPlayers = argv.allPlayers;
 const exBlueJays = argv.exBlueJays;
-const endDate = argv.endDate;
+let endDate = argv.endDate;
 const skipRetired = argv.skipRetired;
 const skipStatus = argv.skipStatus;
 const verbose = argv.verbose;
 
-let endDateObj;
-if (endDate) {
-    endDateObj = new Date(endDate);
-} else {
+if (!endDate) {
     // use last Sunday
-    endDateObj = lastSunday();
+    endDate = lastSunday().toISOString().split("T")[0];
 }
-const endDateString = endDateObj.toISOString().split("T")[0];
 
 const fourYearsAgo = new Date();
 fourYearsAgo.setFullYear(fourYearsAgo.getFullYear() - 4);
@@ -160,7 +156,7 @@ async function updateStatus() {
             }
             // pause to be nice
             if (counter % 10 === 0) {
-                await sleep(2000);
+                await sleep(500);
             }
         }
     }
@@ -212,7 +208,7 @@ async function updateStatus() {
                 const playerData = await response.json();
 
                 const teamChanges = getTeamChanges(playerData.people[0].transactions);
-                const latestTeam = teamChanges.filter(tc => tc.date <= endDate).at(-1)?.to;
+                const latestTeam = teamChanges.filter(tc => tc.dateString <= endDate).at(-1)?.to;
 
                 const updateInfo = {
                     "position": playerData.people[0].primaryPosition.name,
@@ -240,7 +236,7 @@ async function updateStatus() {
         }
         // pause to be nice
         if (counter % 10 === 0) {
-            await sleep(2000);
+            await sleep(500);
         }
     }
 

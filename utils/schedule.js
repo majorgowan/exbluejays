@@ -1,4 +1,4 @@
-async function getSchedule(dbInstance, endDate, verbose=false) {
+async function getSchedule(dbInstance, endDate, playersCollectionName, verbose=false) {
     // check Blue Jays schedule for the coming 7 days
     const MLB_API = process.env.MLB_API;
     const nextDayObj = new Date(endDate);
@@ -48,7 +48,7 @@ async function getSchedule(dbInstance, endDate, verbose=false) {
 
     // iterate over opponents and retrieve active exJays on those teams as of now
     for (const opponent in exArms) {
-        const playersArray = await dbInstance.collection("players").aggregate([
+        const playersArray = await dbInstance.collection(playersCollectionName).aggregate([
             {
                 "$match": {
                     "active": true,
@@ -76,12 +76,12 @@ async function getSchedule(dbInstance, endDate, verbose=false) {
         exBats[opponent] = playersArray.filter(player => {
             return (player.position !== "Pitcher" && player.activity);
         }).map(player => {
-            return `${player.fullName} (${player.last_year_with_jays})`;
+            return `${player.fullName}`;
         });
         exArms[opponent] = playersArray.filter(player => {
             return (player.position === "Pitcher" && player.activity);
         }).map(player => {
-            return `${player.fullName} (${player.last_year_with_jays})`;
+            return `${player.fullName}`;
         });
     }
 

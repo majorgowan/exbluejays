@@ -110,9 +110,9 @@ async function evaluateNews(dbInstance, articleList = []) {
 async function evaluateAllNews() {
     const dbInstance = await connectToDatabase("exbluejays");
 
-    // retry 4 times to hopefully get all failures
+    // retry a few times to hopefully get all failures
     let failedList = [];
-    for (let retry = 0; retry < 3; retry++) {
+    for (let retry = 0; retry < 6; retry++) {
         if (verbose && failedList.length > 0) console.log(`retrying ${failedList.length} articles.`);
         failedList = await evaluateNews(dbInstance, failedList);
         if (failedList.length === 0) {

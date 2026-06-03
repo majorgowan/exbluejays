@@ -30,18 +30,18 @@ p {
     color: darkred;
 }
 .exjayname {
-    color: navy;
-    font-style: italic;
+    font-size: small;
 }
-.exjayheading a:link, a:visited {
+.exjayheading a:link, .exjayheading a:visited {
     color: inherit;
     text-decoration: none;
 }
 .exjayplayerlink {
     color: inherit;
     text-decoration: none;
+    font-size: small;
 }
-.exjayplayerlink a:link, a:visited {
+.exjayplayerlink a:link, .exjayplayerlink a:visited {
     color: inherit;
     text-decoration: none;
 }
@@ -60,10 +60,28 @@ p {
 .exjaylist li a {
     color: darkred;
 }
+
 .exjayseries {
     margin-bottom: 20px;
-    line-height: 1.6;
+    color: darkred;
+    font-size: small;
+    border-collapse: collapse;
 }
+.exjayseriesdate {
+    text-align: right;
+    width: 20%;
+}
+.exjayseries td, .exjayseries th {
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    vertical-align: top;
+    border-bottom: 1px solid lightslategrey;
+}
+.exjayseriesopponent {
+    color: navy;
+}
+
 .exjaylist li::marker {
     content: ""; /* or "›", "→", "•", etc. */
 }
@@ -72,11 +90,11 @@ p {
     color: darkred;
     font-size: medium;
 }
-.exjaynews td, th {
+.exjaynews td, .exjaynews th {
     padding-left: 10px;
     padding-top: 3px;
 }
-.exjaynewsitem a:link, a:visited {
+.exjaynewsitem a:link, .exjaynewsitem a:visited {
     color: inherit;
     text-decoration: none;
     font-family: "Times New Roman", serif;
@@ -118,9 +136,9 @@ p {
     color: darkred;
     font-size: small;
 }
-.exjaytransactions td, th {
+.exjaytransactions td, .exjaytransactions th {
     padding-left: 10px;
-    padding-top: 3px;
+    padding-top: 5px;
     vertical-align: top;
 }
 .exjaytransaction {
@@ -129,10 +147,6 @@ p {
 }
 .exjaytransactiontype {
     color: darkgreen;
-}
-.exjaytransaction a:hover, a:link, a:visited {
-    color: inherit;
-    text-decoration: none;
 }
 
 .dateselectdiv {

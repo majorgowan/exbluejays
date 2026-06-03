@@ -89,12 +89,12 @@ async function updateStats() {
                     {"fullName": {"$regex": bbtest}}
                 ]
             },
-            {"_id": 1, "position": 1, "fullName": 1, "link": 1}).toArray();
+            {"_id": 1, "position": 1, "fullName": 1, "latestTeam": 1, "link": 1}).toArray();
     } else {
         // get all players not back on the Blue Jays
         players_array = await playersCollection.find(
             {},
-            {"_id": 1, "position": 1, "fullName": 1, "link": 1}).toArray();
+            {"_id": 1, "position": 1, "fullName": 1, "latestTeam": 1, "link": 1}).toArray();
     }
 
     for (const statsType of ["stats", "ytd"]) {
@@ -112,8 +112,7 @@ async function updateStats() {
         console.log(`Fetching stats for ${startDateString} (${dayNames[startDateObj.getUTCDay()]}) to ${endDateString} (${dayNames[endDateObj.getUTCDay()]})`);
 
         // iterate over players_list
-        for (const player of players_array) {
-            player["stats"] = {};
+        for await (const player of players_array) {
             let statsGroup = "hitting";
             if (player.position === "Pitcher") {
                 statsGroup = "pitching";
@@ -206,7 +205,7 @@ async function updateStats() {
     }
 
     // check Blue Jays schedule for the coming 7 days
-    const schedule = await getSchedule(dbInstance, endDateString, verbose);
+    const schedule = await getSchedule(dbInstance, endDateString, exBlueJays, verbose);
 
     if (!local) {
         // update reports collection (only once, for weekly stats pass)

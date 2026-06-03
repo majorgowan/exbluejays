@@ -72,12 +72,6 @@ async function makeSummary() {
     // get schedule for the week to come
     const schedule = await buildSeries(dbInstance, endDate);
 
-    // get player team change notes
-    const report_notes = await dbInstance.collection("reports").findOne(
-        {"endDate": endDate},
-        {"_id": 0, "notes": 1}
-    );
-
     // get news
     const news = await buildNews(dbInstance, endDate, 5);
 
@@ -85,7 +79,7 @@ async function makeSummary() {
     if (verbose) console.log(`Mister Ex composing report for week ending ${endDate}`);
 
     const prompt = buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
-                               schedule, report_notes.notes, news);
+                               schedule, news);
     if (verbose) {
         console.log("Prompt: \n");
         console.log(prompt);

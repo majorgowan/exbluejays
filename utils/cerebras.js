@@ -93,6 +93,8 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     
     Please do not accidentally say any of the players are still with the Blue Jays.
     
+    NEVER USE THE WORD PINSTRIPES.  ONLY THE YANKEES WEAR PINSTRIPES!!!!
+    
     Introduce yourself at the beginning but do not actually use the word old-timey.
     
     Please be careful not to invent statistics or misread the tables.

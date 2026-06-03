@@ -1,6 +1,13 @@
+function toShortDate(dateString) {
+    return (new Date(dateString)).toLocaleDateString(
+        "en-US", {month: "short", day: "numeric"}
+    );
+}
+
+
 async function buildTables(dbInstance, statsType, endDate) {
     // retrieve stats for specified date
-    const playersArray = await dbInstance.collection("players1").aggregate([
+    const playersArray = await dbInstance.collection("players").aggregate([
         {
             "$match": {
                 "latestTeam": {
@@ -112,7 +119,7 @@ async function buildTables(dbInstance, statsType, endDate) {
 
 async function buildSummary(dbInstance, endDate) {
     // retrieve summary for specified date
-    const summaryDoc = await dbInstance.collection("reports1").findOne(
+    const summaryDoc = await dbInstance.collection("reports").findOne(
         { "endDate": endDate },
         { "summary": 1 }
     );
@@ -123,7 +130,7 @@ async function buildSummary(dbInstance, endDate) {
 
 async function buildSeries(dbInstance, endDate) {
     // retrieve schedule from the report
-    const scheduleDoc = await dbInstance.collection("reports1").findOne(
+    const scheduleDoc = await dbInstance.collection("reports").findOne(
         {"endDate": endDate},
         {"jaysSchedule": 1}
     );
@@ -134,13 +141,13 @@ async function buildSeries(dbInstance, endDate) {
     for (const game of scheduleDoc.jaysSchedule.games) {
         const key = `${game.phrase} ${game.opponent}`
         if (key in series) {
-            series[key].to_date = game.officialDate;
+            series[key].to_date = toShortDate(game.officialDate);
         } else {
             series[key] = {
                 opponent: game.opponent,
                 venue: game.venue,
                 phrase: game.phrase,
-                from_date: game.officialDate,
+                from_date: toShortDate(game.officialDate),
                 exBats: scheduleDoc.jaysSchedule.exBats[game.opponent],
                 exArms: scheduleDoc.jaysSchedule.exArms[game.opponent],
             }
@@ -152,7 +159,7 @@ async function buildSeries(dbInstance, endDate) {
 
 
 async function buildTransactions(dbInstance, endDate) {
-    const report = await dbInstance.collection("reports1").findOne(
+    const report = await dbInstance.collection("reports").findOne(
         {"endDate": endDate},
         {"transactions": 1}
     );
@@ -160,10 +167,10 @@ async function buildTransactions(dbInstance, endDate) {
     return report.transactions.filter(trans => {
         return !trans.team.includes("Toronto");
     }).map(trans => {
-        trans.shortDate = (new Date(trans.date)).toLocaleDateString('en-US',
-            { month: 'long', day: 'numeric' }
-        );
+        trans.shortDate = toShortDate(trans.date);
         return trans;
+    }).sort((ta, tb) => {
+        return (ta.date.localeCompare(tb.date));
     });
 }
 
@@ -190,9 +197,7 @@ async function buildNews(dbInstance, endDate, threshold=6) {
     // add category-based class name and short date
     for (const newsItem of newsRoundup) {
         newsItem.categoryClass = "category" + newsItem.category.toLowerCase().replace(/ /g, "");
-        newsItem.shortDate = (new Date(newsItem.publishedDate)).toLocaleDateString('en-US',
-            { month: 'long', day: 'numeric' }
-        );
+        newsItem.shortDate = toShortDate(newsItem.publishedDate);
         newsItem.shortTitle = (newsItem.title.length > 65 ? newsItem.title.substring(0, 65) + "..." : newsItem.title);
     }
 

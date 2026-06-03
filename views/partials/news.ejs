@@ -8,7 +8,7 @@
         <% for (newsItem of news) { %>
         <tr class="exjaynewsrow">
             <td>
-                <span><%= newsItem.shortDate %>:</span>
+                <span><%= newsItem.shortDate %></span>
             </td>
             <td class="exjaynewsitem <%= newsItem.categoryClass %>">
                 <span class="exjaynewstitle">
@@ -17,7 +17,9 @@
                 </span>
             </td>
             <td>
-                <span><%= newsItem.playerName %></span>
+                <span>
+                    <a class="exjayplayerlink" href="<%= players_url %>/<%= newsItem.player_id %>"><%= newsItem.playerName %></a>
+                </span>
             </td>
         </tr>
         <tr class="exjaynewssummary">

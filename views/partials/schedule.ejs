@@ -1,25 +1,32 @@
 <div>
-    <ul>
-        <% Object.keys(schedule).forEach(function(series) { %>
-            <li class="exjayseries">
-                from <span class="exjaybold"><%= schedule[series].from_date %></span>
-                to <span class="exjaybold"><%= schedule[series].to_date %></span>
-                the Jays are <span class="exjaybold"><%= series %></span>
-                <% if (schedule[series].exBats.length + schedule[series].exArms.length > 0) { %>
-                    <BR>
-                    <% if (schedule[series].exBats.length > 0) { %>
-                        <span class="exjaybold">ex-bats: </span>
-                        <span class="exjayname"><%= schedule[series].exBats.join(", ") %></span>
-                        <% if (schedule[series].exArms.length > 0) { %>
-                            <BR>
-                        <% } %>
+    <table class="exjayseries">
+        <thead>
+            <th></th>
+            <th></th>
+            <th class="left-th">ex-Bats</th>
+            <th class="left-th">ex-Arms</th>
+        </thead>
+        <% for (series of Object.keys(schedule)) { %>
+            <tr>
+                <td class="exjayseriesdate">
+                    <span>
+                        <%= schedule[series].from_date %> - <%= schedule[series].to_date %>
+                    </span>
+                </td>
+                <td>
+                    <span class="exjayseriesopponent"><%= schedule[series].phrase %> <b><%= schedule[series].opponent %></b></span>
+                </td>
+                <td>
+                    <% for (exBat of schedule[series].exBats) { %>
+                        <span class="exjayname"><%= exBat %></span><BR>
                     <% } %>
-                    <% if (schedule[series].exArms.length > 0) { %>
-                        <span class="exjaybold">ex-arms: </span>
-                        <span class="exjayname"><%= schedule[series].exArms.join(", ") %></span>
+                </td>
+                <td>
+                    <% for (exArm of schedule[series].exArms) { %>
+                        <span class="exjayname"><%= exArm %></span><BR>
                     <% } %>
-                <% } %>
-            </li>
-        <% }); %>
-    </ul>
+                </td>
+            </tr>
+        <% } %>
+    </table>
 </div>
