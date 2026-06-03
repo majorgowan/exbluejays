@@ -2,8 +2,8 @@ require("dotenv").config();
 const { createInterface } = require("node:readline/promises");
 const { connectToDatabase, closeConnection } = require("../utils/db");
 const { buildPrompt, askCerebras } = require("../utils/cerebras");
-const { buildTables, buildSeries, buildNews } = require("../utils/builders");
-const { lastSunday } = require("../utils/utils");
+const { buildTables, buildSeries, buildNews, buildTransactions} = require("../utils/builders");
+const { lastSunday, sleep} = require("../utils/utils");
 const argv = require('yargs')
     .option("endDate", {
         type: "string",
@@ -39,9 +39,7 @@ if (endDate === undefined) {
 // interface for accepting input (if not yes)
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 
-async function makeSummary() {
-
-    const dbInstance = await connectToDatabase("exbluejays");
+async function makeCerebrasSummary(dbInstance) {
 
     // get stats from Mongo
     const { hitters: hitters_week, pitchers: pitchers_week } = await buildTables(dbInstance, "stats", endDate);
@@ -75,11 +73,14 @@ async function makeSummary() {
     // get news
     const news = await buildNews(dbInstance, endDate, 5);
 
+    // get transactions
+    const transactions = await buildTransactions(dbInstance, endDate);
+
     // construct prompt for Cerebras
     if (verbose) console.log(`Mister Ex composing report for week ending ${endDate}`);
 
     const prompt = buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
-                               schedule, news);
+                               schedule, news, transactions);
     if (verbose) {
         console.log("Prompt: \n");
         console.log(prompt);
@@ -87,9 +88,16 @@ async function makeSummary() {
     }
 
     try {
-        const response = await askCerebras(prompt);
+        const response = await askCerebras(prompt, null, "medium", 8192);
 
         const summary = response.choices[0].message.content;
+
+        if (!summary && verbose) {
+            // something went wrong, print entire response object
+            console.log(response);
+            console.log(response.choices[0].message);
+        }
+
         if (verbose || testing) {
             console.log("summary: \n\n");
             console.log(summary);
@@ -129,15 +137,37 @@ async function makeSummary() {
         // close user-input interface
         rl.close();
 
+        return summary;
+
     } catch (error) {
 
         console.error(error);
-        process.exit(1);
+        return null;
 
     }
 
-    // close mongo connection
+}
+
+
+async function makeSummary() {
+    const dbInstance = await connectToDatabase("exbluejays");
+
+    // retry a few times to hopefully get all failures
+    const maxRetries = 6;
+    for (let retry = 0; retry < maxRetries; retry++) {
+        const summary = await makeCerebrasSummary(dbInstance);
+        if (summary) {
+            break;
+        }
+
+        if (verbose) console.log(`${maxRetries - retry} retries left . . .`);
+
+        // wait 10 seconds before retrying
+        await sleep(10000);
+    }
+
     await closeConnection();
 }
+
 
 makeSummary();

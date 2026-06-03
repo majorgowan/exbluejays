@@ -6,7 +6,7 @@ const client = new Cerebras({
     maxRetries: 8
 });
 
-async function askCerebras(content, response_format = null, temperature = 0.2, max_completion_tokens = 1024) {
+async function askCerebras(content, response_format=null, reasoning_effort="low", max_completion_tokens=1024, temperature=0.2) {
     try {
         const response = await client.chat.completions.create({
             model: process.env.CEREBRAS_MODEL,
@@ -14,7 +14,7 @@ async function askCerebras(content, response_format = null, temperature = 0.2, m
             temperature: temperature,
             stream: false,
             response_format: response_format,
-            reasoning_effort: "low",
+            reasoning_effort: reasoning_effort,
             messages: [
                 {
                     role: "user",
@@ -33,7 +33,7 @@ async function askCerebras(content, response_format = null, temperature = 0.2, m
 
 
 function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
-                     schedule, notes=null, news=null) {
+                     schedule, news=null, transactions=null) {
     // generate the content for asking cerebras
 
     const scheduleString = Object.values(schedule).map(row => {
@@ -43,19 +43,26 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
                 + (row.exBats.length > 0 ? `ex bats ${row.exBats.join(",")}` : ""));
     });
 
-    const notes_string = (notes?.length > 0 ? `\nHere are some team change notes:\n ${notes.join("\n")}` : "There are no team change notes.");
-
-    let news_string = "";
-    if (news?.length > 0) {
-        news_string += "Here is a survey of news about some ex-Blue Jays that might inform your summary:";
+    let newsString = "";
+    if (news) {
+        newsString += "Here is a survey of news articles from the past week about Ex-Blue Jays:";
         for (newsItem of news) {
-            news_string += `\n- ${newsItem.shortDate}: ${newsItem.summary}`;
+            newsString += `\n- ${newsItem.shortDate}: ${newsItem.summary}`;
         }
     }
 
+    let transactionsString = "";
+    if (transactions) {
+        transactionsString += "Here is a list of transactions involving Ex-Blue Jays:";
+        for (transaction of transactions) {
+            transactionsString += `\n- ${transaction.shortDate}: (${transaction.typeDesc}) ${transaction.description}`;
+        }
+    }
+
+
     let prompt = `Your name is Mister Ex and you are an old timey sports reporter whose beat is former Toronto Blue Jays.
     
-    Here are statistics for some former Toronto Blue Jays players for the last week.  The
+    Here are statistics for some former ex-Blue Jays for the last week.  The
     column "ex_since" represents the last year they played with Toronto and JGP the number of games played as a Blue Jay in their career.
     
     Hitters:
@@ -75,31 +82,41 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     The Blue Jays' schedule for the next week is: 
     ${scheduleString.join("\n")}
     
-    ${notes_string}
+    ${newsString}
     
-    In three to five sentences, please summarize the outstanding performances from the past week.  
-    Use past tense to describe the past week.
+    ${transactionsString}
     
-    ${news_string}
+    Your task is to write a weekly report about the progress of former Toronto Blue Jays baseball players.
     
-    Emphasize players with higher number of career games played as a Blue Jay (gamesWithJays) and seasons with the Jays (the list yearsWithJays).
+    - In three to five sentences, summarize the outstanding performances from the past week.  
+    - In a sentence or two, mention the better hitters and pitchers of the season so far.
+        - Be careful to interpret the tables accurately in identifying the outstanding performances.
+    - If there are any interesting news stories, include them in your report.
+    - Mention significant transactions involving ex-Blue Jays.
+        - Trades and free agent signings are obviously important.
+        - Long term injuries and activations from long-term injuries might be worth mentioning if they involve important players.
+        - Transactions involving non-MLB clubs are probably not important
+        - If a player was traded or released BY the Blue Jays, mention their becoming an Ex-Blue Jay
+    - In a final sentence, mention the Blue Jays' opponents for the next week and any former teammates they might face in those series. 
+        - If you've already noted a player was just traded or released by their team, do not include them as possible Blue Jays opponent.
+    - PLEASE USE THE STYLE OF A 1940s SPORTS REPORT.
     
-    In a sentence or two, mention the best hitters and pitchers of the season so far.
+    Please observe these suggestions for your report
+    - Do not use markdown formatting in your report.  Use plain text and normal punctuation.
+    - Introduce yourself at the beginning but do not actually use the word old-timey.
+    - Use past tense to describe the past week.
+    - Emphasize players with a higher number of career games played as a Blue Jay (gamesWithJays) 
+      and seasons with the Jays (the list yearsWithJays) but do not pedantically list those numbers.
+    - Be careful not to invent statistics or misread the tables.
+    - Do not mix up weekly and year-to-date statistics.
+    - Do not impute details not mentioned in news stories.
+    - Occasionally work in the year the players last played for Toronto and how they are fondly remembered.
+    - Please do not accidentally say any of the players are still with the Blue Jays.
+    - Don't call players rookies unless you know they are first-year players (unlikely).
+    - Try not to mention the same detail twice if it is in one or more news article and a transaction wire item.
+    - NEVER USE THE WORD PINSTRIPES.  ONLY THE YANKEES WEAR PINSTRIPES!!!!
     
-    In a final sentence, mention the Blue Jays' opponents for the next week and any former teammates they might
-    face in those series. 
-    
-    Please use the style of a 1950s sports report.
-    
-    Please do not accidentally say any of the players are still with the Blue Jays.
-    
-    NEVER USE THE WORD PINSTRIPES.  ONLY THE YANKEES WEAR PINSTRIPES!!!!
-    
-    Introduce yourself at the beginning but do not actually use the word old-timey.
-    
-    Please be careful not to invent statistics or misread the tables.
-    
-    Try to work in the year the players last played for Toronto and how they are fondly remembered.`;
+    `;
 
     return prompt;
 }
@@ -173,7 +190,7 @@ async function rateNews(content, playerName) {
         }
     };
 
-    return await askCerebras(prompt, response_format);
+    return await askCerebras(prompt, response_format, "low");
 }
 
 

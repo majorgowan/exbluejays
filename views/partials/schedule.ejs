@@ -3,27 +3,24 @@
         <thead>
             <th></th>
             <th></th>
-            <th class="left-th">ex-Bats</th>
-            <th class="left-th">ex-Arms</th>
+            <th class="left-th">ex-Blue Jays</th>
         </thead>
         <% for (series of Object.keys(schedule)) { %>
             <tr>
                 <td class="exjayseriesdate">
-                    <span>
-                        <%= schedule[series].from_date %> - <%= schedule[series].to_date %>
-                    </span>
+                    <span><%= schedule[series].from_date %></span>
+                    -
+                    <span><%= schedule[series].to_date %></span>
                 </td>
                 <td>
-                    <span class="exjayseriesopponent"><%= schedule[series].phrase %> <b><%= schedule[series].opponent %></b></span>
+                    <span class="exjayseriesopponent"><%= schedule[series].phrase %> <span class="exjayseriesopponentteam"><%= schedule[series].opponent %></span></span>
                 </td>
-                <td>
+                <td class="exjayseriesplayercolumn">
                     <% for (exBat of schedule[series].exBats) { %>
-                        <span class="exjayname"><%= exBat %></span><BR>
+                        <span class="exjayseriesname"><%= exBat %></span>&emsp;
                     <% } %>
-                </td>
-                <td>
                     <% for (exArm of schedule[series].exArms) { %>
-                        <span class="exjayname"><%= exArm %></span><BR>
+                        <span class="exjayseriesname"><%= exArm %></span>&emsp;
                     <% } %>
                 </td>
             </tr>
