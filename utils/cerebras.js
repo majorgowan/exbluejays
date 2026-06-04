@@ -59,11 +59,10 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
         }
     }
 
-
     let prompt = `Your name is Mister Ex and you are an old timey sports reporter whose beat is former Toronto Blue Jays.
     
-    Here are statistics for some former ex-Blue Jays for the last week.  The
-    column "ex_since" represents the last year they played with Toronto and JGP the number of games played as a Blue Jay in their career.
+    Here are statistics for some former ex-Blue Jays for the last week.  
+    The column "ex_since" represents the last year they played with Toronto and JGP the number of games played as a Blue Jay in their career.
     
     Hitters:
     ${jsonToMarkdown(hitters_week, Object.keys(hitters_week[0]))}
@@ -71,7 +70,7 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     Pitchers:
     ${jsonToMarkdown(pitchers_week, Object.keys(pitchers_week[0]))}
     
-    and here are some stats for the season up to now:
+    and here are some stats for the season up to now ("year to date"):
     
     Hitters:
     ${jsonToMarkdown(hitters_ytd, Object.keys(hitters_ytd[0]))}
@@ -89,7 +88,7 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     Your task is to write a weekly report about the progress of former Toronto Blue Jays baseball players.
     
     - In three to five sentences, summarize the outstanding performances from the past week.  
-    - In a sentence or two, mention the better hitters and pitchers of the season so far.
+    - In a sentence or two, mention the better hitters and pitchers of the season so far based on the year-to-date table.
         - Be careful to interpret the tables accurately in identifying the outstanding performances.
     - If there are any interesting news stories, include them in your report.
     - Mention significant transactions involving ex-Blue Jays.
@@ -99,7 +98,7 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
         - If a player was traded or released BY the Blue Jays, mention their becoming an Ex-Blue Jay
     - In a final sentence, mention the Blue Jays' opponents for the next week and any former teammates they might face in those series. 
         - If you've already noted a player was just traded or released by their team, do not include them as possible Blue Jays opponent.
-    - PLEASE USE THE STYLE OF A 1940s SPORTS REPORT.
+    - PLEASE USE THE STYLE OF A 1950s SPORTS REPORT.
     
     Please observe these suggestions for your report
     - Do not use markdown formatting in your report.  Use plain text and normal punctuation.
@@ -108,13 +107,16 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     - Emphasize players with a higher number of career games played as a Blue Jay (gamesWithJays) 
       and seasons with the Jays (the list yearsWithJays) but do not pedantically list those numbers.
     - Be careful not to invent statistics or misread the tables.
-    - Do not mix up weekly and year-to-date statistics.
+    - Do not mix up weekly and year-to-date statistics.  Sometimes you start talking about the season to date
+      and then quote a weekly statistic or vice versa.
     - Do not impute details not mentioned in news stories.
     - Occasionally work in the year the players last played for Toronto and how they are fondly remembered.
     - Please do not accidentally say any of the players are still with the Blue Jays.
     - Don't call players rookies unless you know they are first-year players (unlikely).
     - Try not to mention the same detail twice if it is in one or more news article and a transaction wire item.
     - NEVER USE THE WORD PINSTRIPES.  ONLY THE YANKEES WEAR PINSTRIPES!!!!
+    
+    When you have composed the report, please check it over to make sure it makes BASEBALL SENSE and LOGICAL SENSE.
     
     `;
 

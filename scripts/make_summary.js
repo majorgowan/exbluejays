@@ -91,6 +91,7 @@ async function makeCerebrasSummary(dbInstance) {
         const response = await askCerebras(prompt, null, "medium", 8192);
 
         const summary = response.choices[0].message.content;
+        const reasoning = response.choices[0].message.reasoning;
 
         if (!summary && verbose) {
             // something went wrong, print entire response object
@@ -106,7 +107,14 @@ async function makeCerebrasSummary(dbInstance) {
             console.log("total tokens", response.usage.total_tokens);
         }
 
-        let answer = "y";
+        let answer = "n";
+        if (!yes && !testing) {
+            // Pause for user confirmation
+            answer = await rl.question("\n\nWould you like to see the reasoning? (y/n): ");
+        }
+        if ((yes && verbose) || answer === "y") console.log(reasoning);
+
+        answer = "y";
         if (!yes && !testing) {
             // Pause for user confirmation
             answer = await rl.question("\n\nCommit the summary to Mongodb? (y/n): ");
