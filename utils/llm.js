@@ -1,15 +1,27 @@
 const Cerebras = require("@cerebras/cerebras_cloud_sdk");
+const { Groq } = require("groq-sdk");
 const jsonToMarkdown = require("json-to-markdown-table");
 
-const client = new Cerebras({
-    apiKey: process.env.CEREBRAS_API_KEY,
-    maxRetries: 8
-});
+let llmClient;
+let llmModel;
+if (process.env.AI_PLATFORM === "groq") {
+    llmClient = new Groq({
+        "apiKey": process.env.GROQ_API_KEY,
+    });
+    llmModel = process.env.GROQ_MODEL;
+} else {
+    llmClient = new Cerebras({
+        "apiKey": process.env.CEREBRAS_API_KEY,
+        "maxRetries": 8
+    });
+    llmModel = process.env.CEREBRAS_MODEL;
+}
 
-async function askCerebras(content, response_format=null, reasoning_effort="low", max_completion_tokens=1024, temperature=0.2) {
+
+async function askLlm(content, response_format=null, reasoning_effort="low", max_completion_tokens=1024, temperature=0.2) {
     try {
-        const response = await client.chat.completions.create({
-            model: process.env.CEREBRAS_MODEL,
+        const response = await llmClient.chat.completions.create({
+            model: llmModel,
             max_completion_tokens: max_completion_tokens,
             temperature: temperature,
             stream: false,
@@ -35,6 +47,7 @@ async function askCerebras(content, response_format=null, reasoning_effort="low"
 function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
                      schedule, news=null, transactions=null) {
     // generate the content for asking cerebras
+    // TODO: provide previous week's report (if applicable) to comment on trends
 
     const scheduleString = Object.values(schedule).map(row => {
         return (`\n- ${row.phrase} ${row.opponent} at ${row.venue} from ${row.from_date} to ${row.to_date}`
@@ -115,6 +128,8 @@ function buildPrompt(hitters_week, hitters_ytd, pitchers_week, pitchers_ytd,
     - Don't call players rookies unless you know they are first-year players (unlikely).
     - Try not to mention the same detail twice if it is in one or more news article and a transaction wire item.
     - NEVER USE THE WORD PINSTRIPES.  ONLY THE YANKEES WEAR PINSTRIPES!!!!
+    - Do not use the word "dazzled".  You overuse the word dazzled.
+    - Do not refer to the weekly stats as a "short stint".  It is a week's worth of stats, not a short stint.
     
     When you have composed the report, please check it over to make sure it makes BASEBALL SENSE and LOGICAL SENSE.
     
@@ -192,8 +207,8 @@ async function rateNews(content, playerName) {
         }
     };
 
-    return await askCerebras(prompt, response_format, "low");
+    return await askLlm(prompt, response_format, "low");
 }
 
 
-module.exports = { askCerebras, buildPrompt, rateNews };
+module.exports = { askLlm, buildPrompt, rateNews };

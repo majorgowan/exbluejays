@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { parseFromLLM } = require("json-llm-repair");
 const { connectToDatabase, closeConnection } = require("../utils/db");
-const { rateNews } = require("../utils/cerebras");
+const { rateNews } = require("../utils/llm");
 const { lastSunday, sleep } = require("../utils/utils");
 const argv = require("yargs")
     .option("endDate", {

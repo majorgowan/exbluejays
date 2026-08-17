@@ -3,7 +3,7 @@
 const handleCsrfError = (error, req, res, next) => {
     if (error.code === "EBADCSRFTOKEN") {
         // Redirect back to the form with an error message
-        return res.status(403).render('subscribe', {
+        return res.status(403).render("subscribe", {
             csrfToken: req.csrfToken(),
             error: "Your session has expired. Please try again."
         });

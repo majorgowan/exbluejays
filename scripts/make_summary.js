@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { createInterface } = require("node:readline/promises");
 const { connectToDatabase, closeConnection } = require("../utils/db");
-const { buildPrompt, askCerebras } = require("../utils/cerebras");
+const { buildPrompt, askLlm } = require("../utils/llm");
 const { buildTables, buildSeries, buildNews, buildTransactions} = require("../utils/builders");
 const { lastSunday, sleep} = require("../utils/utils");
 const argv = require('yargs')
@@ -88,7 +88,7 @@ async function makeCerebrasSummary(dbInstance) {
     }
 
     try {
-        const response = await askCerebras(prompt, null, "medium", 8192);
+        const response = await askLlm(prompt, null, "medium", 8192);
 
         const summary = response.choices[0].message.content;
         const reasoning = response.choices[0].message.reasoning;

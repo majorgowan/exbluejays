@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/subscribe", (req, res) => {
     const emailAddress = req.query.email || "";
     const csrfToken = req.csrfToken();
-    res.render("subscribe",
+    return res.render("subscribe",
         {
             "method": "get",
             "email": emailAddress,
@@ -71,7 +71,7 @@ router.post("/subscribe", async (req, res) => {
         await sendEmail(emailData);
     }
 
-    res.render("subscribe", {
+    return res.render("subscribe", {
         "method": "post",
         "message": message
     });
@@ -81,7 +81,7 @@ router.post("/subscribe", async (req, res) => {
 router.get("/unsubscribe", (req, res) => {
     const emailAddress = req.query.email;
     const csrfToken = req.csrfToken();
-    res.render("unsubscribe",
+    return res.render("unsubscribe",
         {
             "method": "get",
             "emailAddress": emailAddress,
@@ -114,7 +114,7 @@ router.post("/unsubscribe", async (req, res) => {
         message = `${emailAddress} is now unsubscribed.  You are now an ex-Ex-Blue Jays Report subscriber!`
     }
 
-    res.render("unsubscribe", {
+    return res.render("unsubscribe", {
         "method": "post",
         "message": message
     });
@@ -172,7 +172,7 @@ router.get("/confirm", async (req, res) => {
             }
         }
     }
-    res.render("confirm", {
+    return res.render("confirm", {
         "method": "get",
         "message": message,
         "email": emailAddress,
@@ -182,7 +182,7 @@ router.get("/confirm", async (req, res) => {
 
 
 router.get("/privacy", (req, res) => {
-    res.render("privacy");
+    return res.render("privacy");
 });
 
 module.exports = router;

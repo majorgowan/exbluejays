@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
         return date.endDate;
     });
 
-    res.redirect(`/report?endDate=${endDates[0]}`);
+    return res.redirect(`/report?endDate=${endDates[0]}`);
 });
 
 
@@ -44,7 +44,7 @@ router.get("/home", async (req, res) => {
         };
     });
 
-    res.render('index',
+    return res.render('index',
         {
             "endDates": endDates
         });
@@ -92,7 +92,7 @@ router.get("/report", async (req, res) => {
 
     console.log(`Returning ${hitters_week.length} ex Blue Jay hitters and ${pitchers_week.length} ex Blue Jay pitchers.`);
 
-    res.render('report',
+    return res.render('report',
         {
             endDate: endDate,
             endDates: endDates,
@@ -119,7 +119,7 @@ router.get("/db/:player", async (req, res) => {
                 "$regex": player_pattern
             }
         }).toArray();
-    res.json(playersArray);
+    return res.json(playersArray);
 });
 
 
